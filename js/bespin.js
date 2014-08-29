@@ -1,0 +1,236 @@
+// Bespin
+var bespin = window.bespin || {};
+bespin = {
+	status: 'disconnected',
+	server_url: '',
+	view_type: 'alias',
+	nodes: {},
+	aliases: {},
+	indices: {},
+	shards: {
+		successful: 0,
+		failed: 0,
+		total: 0
+	},
+	templates: {
+		alias_view: {
+			alias: _.template(
+				'<div class="alias">\
+					<div class="name"><%= name %></div>\
+					<div class="inner">\
+					<% _.each(indices, function(index) { %>\
+						<%= indexTemplate(index) %> \
+					<% }); %>\
+					</div>\
+				</div>'
+			),
+			index: _.template(
+				'<div class="index index-<%= index.name %>" data-name="<%= index.name %>">\
+					<div class="name"><%= index.name %></div>\
+					<div class="info docs">Documents: <%= index.docs %></div>\
+					<div class="info size">Size: <%= index.size %></div>\
+				</div>'
+			)
+		},
+		table_view: {
+			table: _.template(
+				'<table cellpadding="0" cellspacing="0">\
+					<thead></thead>\
+					<tbody></tbody>\
+				</table>'
+			),
+		}
+	},
+
+	init: function(){
+		// Get the view type first so when we connect we can render immediately in the correct view
+        var cookieViewType = $.cookie('view_type');
+        if (cookieViewType !== undefined) {
+        	$('#viewType').val(cookieViewType);
+        	this.view_type = cookieViewType;
+        }
+		var cookieURL = $.cookie('server_url');
+        if (cookieURL !== undefined) {
+            $('#connectionURL').val(cookieURL);
+            this.connect(cookieURL);
+        }
+	},
+	connect: function(url) {
+		$('#connectionStatus').removeClass().addClass('unknown').text('Connecting...');
+		bespin.server_url = url;
+		$.cookie("server_url", url, { expires:7, path:'/' });
+		bespin.es_request('connect');
+	},
+	es_request: function(request_name, data) {
+		var request_path = bespin.server_url;
+		var request_type = 'GET';
+		switch(request_name) {
+			case 'connect':
+				request_path += '_status';
+				break;
+			case 'nodes':
+				request_path += '_nodes'
+				break;
+			case 'aliases':
+				request_path += '_aliases';
+				break;
+			default:
+				console.log('Unknown Request!');
+				return;
+		}
+		$.ajax({
+			async: false,
+			url: request_path,
+			type: request_type
+		}).done(function(data){
+			bespin.process_response(request_name, data);
+		}).fail(function(){
+			bespin.process_response(request_name, false);
+		});
+		return false;
+	},
+	process_response: function(request_type, data) {
+		switch(request_type) {
+			case 'connect':
+				if(data) {
+					bespin.status = 'connected';
+					bespin.shards.successful = data._shards.successful;
+					bespin.shards.failed = data._shards.failed;
+					bespin.shards.total = data._shards.total;
+					bespin.indices = data.indices;
+					bespin.es_request('nodes');
+
+					var connected_message = 'Connected';
+					var connected_status = 'ok';
+					connected_message += ' (' + bespin.shards.successful + ' of ' + bespin.shards.total + ' shards)';
+					if(bespin.shards.failed > 0){connected_status = 'warning';}
+					$('#connectionStatus').removeClass().addClass(connected_status).text(connected_message);
+					
+				} else {
+					bespin.status = 'error';
+					$('#connectionStatus').removeClass().addClass('error').text('Connection Error!');
+				}
+				break;
+			case 'nodes':
+				if(data) {
+					bespin.nodes = data.nodes;
+					bespin.es_request('aliases');
+				}
+				else {
+					console.log('Error retrieving nodes!');
+				}
+				break;
+			case 'aliases':
+				if(data) {
+					var aliases = {
+						'NONE': []
+					};
+					for(var index in data) {
+						if(Object.keys(data[index].aliases).length) {
+							for(var alias in data[index].aliases) {
+								if(!aliases[alias]) {
+									aliases[alias] = [];
+								}
+								aliases[alias].push(index);
+							}
+						}
+						else {
+							aliases['NONE'].push(index);
+						}
+					}
+
+					bespin.aliases = aliases;
+					bespin.draw_indices();
+				} else {
+					console.log('Error retrieving aliases!');
+				}
+				break;
+			default:
+				console.log('Unknown Response!');
+				break;
+		}
+	},
+	draw_indices: function() {
+		$('#content_indices').empty();
+		var alias_keys = Object.keys(bespin.aliases).sort();
+		switch(this.view_type) {
+			case 'alias':
+				for(var key in alias_keys) {
+					var alias = alias_keys[key];
+					if(alias != 'NONE') {
+						var data = {
+							name: alias,
+							indices: [],
+							indexTemplate: bespin.templates.alias_view.index
+						};
+						var indices = bespin.aliases[alias].sort();
+						for(var index in indices) {
+							var index_name = bespin.aliases[alias][index];
+							var index_data = {
+								index: bespin.build_index_object(index_name)
+							};
+							data.indices.push(index_data);
+						};
+
+						var output = bespin.templates.alias_view.alias(data);
+						$('#content_indices').append(output)
+					}
+				}
+				for(var key in alias_keys) {
+					var alias = alias_keys[key];
+					if(alias == 'NONE') {
+						var indices = bespin.aliases[alias].sort();
+						for(var index in indices) {
+							var index_name = bespin.aliases[alias][index];
+							var index_data = {
+								index: bespin.build_index_object(index_name)
+							};
+							var output = bespin.templates.alias_view.index(index_data);
+							$('#content_indices').append(output);
+						}
+					}
+				}
+				$('#content_indices .index').bind('mouseenter', function() {
+					var index_name = $(this).data('name');
+					$('#content_indices .index-'+index_name).addClass('highlight');
+				}).bind('mouseleave', function() {
+					$('#content_indices .index').removeClass('highlight');
+				});
+				break;
+			case 'vertical':
+				var output = bespin.templates.table_view.table();
+				$('#content_indices').append(output);
+				break;
+			case 'horizontal':
+				var output = bespin.templates.table_view.table();
+				$('#content_indices').append(output);
+				break;
+		}
+	},
+	build_index_object: function(index_name) {
+		var index_data = bespin.indices[index_name];
+		return {
+			name: index_name,
+			docs: index_data ? index_data.docs.num_docs : 'unknown',
+			size: index_data ? index_data.index.primary_size : 'unknown',
+		}
+	}
+};
+
+// Bind events
+$(function(){
+	bespin.init();
+	$('#connectionButton').bind('click', function() {
+		var connectionURL = $('#connectionURL').val();
+		bespin.connect(connectionURL);
+	});
+	$('#refreshButton').bind('click', function() {
+		bespin.es_request('connect');
+	});
+	$('#viewType').bind('change', function() {
+		var view_type = $(this).val();
+		$.cookie("view_type", view_type, { expires:7, path:'/' });
+		bespin.view_type = view_type;
+		bespin.draw_indices();
+	});
+});

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title>BESPIn - The Basic Elastic Search PlugIn</title>
+		<!-- Styles -->
+		<link rel="stylesheet" href="css/normalize.css"/>
+		<link rel="stylesheet" href="css/common.css"/>
+		<link rel="stylesheet" href="css/indices.css"/>
+	</head>
+	<body>
+		<!-- Navigation -->
+		<div id="header">
+			<div id="branding">
+				<img src="img/logo.gif" alt="Bespin"/>
+			</div>
+			<div id="connectionBox">
+				<input type="text" id="connectionURL" placeholder="Enter the Elastic Search server address here..." value="http://localhost:9200/"/>
+				<button type="button" id="connectionButton">Connect</button>
+			</div>
+			<div class="status"><span class="title">Status:</span> <span id="connectionStatus" class="unknown">Disconnected</span></div>
+		</div>
+		<div id="nav">
+			<div id="navLeft"></div>
+			<div id="navRight">
+				<div id="viewSelect">
+					<label for="viewType">View: </label>
+					<select id="viewType">
+						<option value="alias" selected="selected">Aliases</option>
+						<option value="vertical">Vertical Grid</option>
+						<option value="horizontal">Horizontal Grid</option>
+					</select>
+					<button type="button" id="refreshButton">Refresh</button>
+				</div>
+			</div>
+		</div>
+		<div id="content">
+			<div id="content_indices"></div>
+		</div>
+		<!-- Scripts -->
+		<script src="js/lib/jquery.min.js"></script>
+		<script src="js/lib/jquery.cookie.min.js"></script>
+		<script src="js/lib/underscore.min.js"></script>
+		<script src="js/bespin.js"></script>
+	</body>
+</html>

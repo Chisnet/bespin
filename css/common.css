@@ -1,0 +1,83 @@
+/* Base */
+body {
+	background: #eee;
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+}
+
+/* Header */
+#header {
+	height: 25px;
+	padding: 5px;
+	border-bottom: 1px solid #999;
+	min-width: 800px;
+}
+#branding {
+	float: left;
+	margin-right: 5px;
+}
+#connectionBox {
+	float: left;
+}
+#connectionBox input {
+	height: 17px;
+	padding: 3px;
+	border: 1px solid #ccc;
+	width: 350px;
+}
+#connectionBox button {
+	background-color: #28d;
+	border: 1px solid #17c;
+	border-radius: 2px;
+	color: #fff;
+	height: 23px;
+	width: 75px;
+}
+#header .status {
+	float: left;
+	line-height: 25px;
+	font-size: 14px;
+	padding-left: 10px;
+}
+#header .status .title {
+	font-weight: bold;
+}
+
+/* Navigation */
+#nav {
+	background: #ccc;
+	padding: 5px 10px;
+	border-bottom: 1px solid #999;
+	min-width: 800px;
+	overflow: auto;
+}
+#navLeft {
+	float: left;
+}
+#navRight {
+	float: right;
+}
+#nav select {
+	height: 20px;
+}
+#nav button {
+	background-color: #28d;
+	border: 1px solid #17c;
+	border-radius: 2px;
+	color: #fff;
+	height: 20px;
+}
+
+/* States */
+.error {
+	color: #aa0000;
+}
+.warning {
+	color: #aaaa00;
+}
+.ok {
+	color: #00aa00;
+}
+.unknown {
+	color: #aaaaaa;
+}
