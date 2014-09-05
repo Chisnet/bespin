@@ -19,7 +19,7 @@ bespin = {
 					<div class="name"><%= name %></div>\
 					<div class="inner">\
 					<% _.each(indices, function(index) { %>\
-						<%= indexTemplate(index) %> \
+						<%= indexTemplate(index) %>\
 					<% }); %>\
 					</div>\
 				</div>'
@@ -39,6 +39,19 @@ bespin = {
 					<tbody></tbody>\
 				</table>'
 			),
+			node: _.template(
+				'<th class="node">\
+					<span class="name"><%= name %></span><br/>\
+					<span class="hostname"><%= hostname %></span>\
+				</th>'
+			),
+			index: _.template(
+				'<th class="index">\
+					<span class="name"><%= name %></span><br/>\
+					<span class="info docs">Documents: <%= docs %></span><br/>\
+					<span class="info size">Size: <%= size %></span>\
+				</th>'
+			)
 		}
 	},
 
@@ -152,7 +165,9 @@ bespin = {
 	},
 	draw_indices: function() {
 		$('#content_indices').empty();
+		$('#content_indices').removeClass().addClass(this.view_type+'_view');
 		var alias_keys = Object.keys(bespin.aliases).sort();
+		var index_keys = Object.keys(bespin.indices).sort();
 		switch(this.view_type) {
 			case 'alias':
 				for(var key in alias_keys) {
@@ -198,8 +213,48 @@ bespin = {
 				});
 				break;
 			case 'vertical':
-				var output = bespin.templates.table_view.table();
-				$('#content_indices').append(output);
+				var $output = $(bespin.templates.table_view.table());
+
+				// Build header
+				var $tHeader = $('<tr></tr>');
+				$tHeader.append($('<th></th>')); // Empty corner cell
+				for(var node in bespin.nodes) {
+					var node_info = bespin.nodes[node];
+					var output = bespin.templates.table_view.node({
+						name: node_info.name,
+						hostname: node_info.hostname
+					});
+					$tHeader.append(output);
+				}
+				// TODO - Unassigned shards?
+				$output.find('thead').append($tHeader);
+
+				// Build content
+				for(var key in index_keys) {
+					var index_name = index_keys[key];
+					var index = bespin.indices[index_name];
+					console.log(index);
+					var $indexRow = $('<tr></tr>');
+					// Add the index name
+					var output = bespin.templates.table_view.index({
+						name: index_name,
+						docs: index.docs.num_docs,
+						size: index.index.primary_size
+					});
+					$indexRow.append(output);
+
+					// Work out shard cells
+					$indexRow.append('<td></td>');
+
+
+					// Add them
+
+
+					$output.find('tbody').append($indexRow);
+				}
+
+				// Write to DOM
+				$('#content_indices').append($output);
 				break;
 			case 'horizontal':
 				var output = bespin.templates.table_view.table();
