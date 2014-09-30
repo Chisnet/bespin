@@ -215,6 +215,20 @@ bespin = {
 			case 'vertical':
 				var $output = $(bespin.templates.table_view.table());
 
+				// Pre-form data
+				var output_data = {};
+
+				// for(var node in bespin.nodes) {
+				// 	console.log(node);
+					
+				// 	var node_info = bespin.nodes[node];
+				// 	var output = bespin.templates.table_view.node({
+				// 		name: node_info.name,
+				// 		hostname: node_info.hostname
+				// 	});
+				// 	$tHeader.append(output);
+				// }
+
 				// Build header
 				var $tHeader = $('<tr></tr>');
 				$tHeader.append($('<th></th>')); // Empty corner cell
@@ -226,7 +240,7 @@ bespin = {
 					});
 					$tHeader.append(output);
 				}
-				// TODO - Unassigned shards?
+				// TODO - Unassigned shards? refresh total is number of shards?
 				$output.find('thead').append($tHeader);
 
 				// Build content
