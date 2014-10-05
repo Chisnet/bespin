@@ -166,7 +166,6 @@ bespin = {
 				}
 				break;
 			case 'segments':
-				console.log(data);
 				if(data) {
 					if(typeof(index_name) != 'undefined') {
 						// We're dealing with an individual index
@@ -184,6 +183,7 @@ bespin = {
 		$('#content_indices').removeClass().addClass(this.view_type+'_view');
 		var alias_keys = Object.keys(bespin.aliases).sort();
 		var index_keys = Object.keys(bespin.indices).sort();
+		var node_keys = Object.keys(bespin.nodes).sort();
 
 		// Check if we require an "Unassigned" node
 		var require_unassigned = false;
@@ -270,21 +270,18 @@ bespin = {
 					var index_name = index_keys[key];
 					var index = bespin.indices[index_name];
 					var $indexRow = $('<tr></tr>');
+
 					// Add the index name
 					var output = bespin.templates.table_view.index({
 						name: index_name,
 						docs: index.docs.num_docs,
-						size: index.index.primary_size
+						size: index.index.primary_size || (index.index.primary_size_in_bytes + ' Bytes')
 					});
 					$indexRow.append(output);
 
-					// Work out shard cells
+					// TODO - Work out shard cells
 					$indexRow.append('<td></td>');
 					$indexRow.append('<td></td>');
-
-
-					// Add them
-
 
 					$output.find('tbody').append($indexRow);
 				}
