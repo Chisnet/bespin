@@ -74,8 +74,11 @@ bespin = {
 		$.cookie("server_url", url, { expires:7, path:'/' });
 		bespin.es_request('connect');
 	},
-	es_request: function(request_name, data) {
+	es_request: function(request_name, index_name) {
 		var request_path = bespin.server_url;
+		if(typeof(index_name) != 'undefined') {
+			request_path += index_name + '/'
+		}
 		var request_type = 'GET';
 		switch(request_name) {
 			case 'connect':
@@ -87,6 +90,9 @@ bespin = {
 			case 'aliases':
 				request_path += '_aliases';
 				break;
+			case 'segments':
+				request_path += '_segments';
+				break;
 			default:
 				console.log('Unknown Request!');
 				return;
@@ -96,14 +102,14 @@ bespin = {
 			url: request_path,
 			type: request_type
 		}).done(function(data){
-			bespin.process_response(request_name, data);
+			bespin.process_response(request_name, index_name, data);
 		}).fail(function(){
-			bespin.process_response(request_name, false);
+			bespin.process_response(request_name, index_name, false);
 		});
 		return false;
 	},
-	process_response: function(request_type, data) {
-		switch(request_type) {
+	process_response: function(request_name, index_name, data) {
+		switch(request_name) {
 			case 'connect':
 				if(data) {
 					bespin.status = 'connected';
@@ -139,6 +145,7 @@ bespin = {
 						'NONE': []
 					};
 					for(var index in data) {
+						bespin.es_request('segments', index);
 						if(Object.keys(data[index].aliases).length) {
 							for(var alias in data[index].aliases) {
 								if(!aliases[alias]) {
@@ -158,6 +165,15 @@ bespin = {
 					console.log('Error retrieving aliases!');
 				}
 				break;
+			case 'segments':
+				console.log(data);
+				if(data) {
+					if(typeof(index_name) != 'undefined') {
+						// We're dealing with an individual index
+						bespin.indices[index_name]._shards = data._shards;
+					}
+				}
+				break;
 			default:
 				console.log('Unknown Response!');
 				break;
@@ -168,6 +184,17 @@ bespin = {
 		$('#content_indices').removeClass().addClass(this.view_type+'_view');
 		var alias_keys = Object.keys(bespin.aliases).sort();
 		var index_keys = Object.keys(bespin.indices).sort();
+
+		// Check if we require an "Unassigned" node
+		var require_unassigned = false;
+		for(var key in index_keys) {
+			var index_name = index_keys[key];
+			var index = bespin.indices[index_name];
+			if((index._shards.successful + index._shards.failed) < index._shards.total) {
+				require_unassigned = true;
+			}
+		}
+
 		switch(this.view_type) {
 			case 'alias':
 				for(var key in alias_keys) {
@@ -218,17 +245,6 @@ bespin = {
 				// Pre-form data
 				var output_data = {};
 
-				// for(var node in bespin.nodes) {
-				// 	console.log(node);
-					
-				// 	var node_info = bespin.nodes[node];
-				// 	var output = bespin.templates.table_view.node({
-				// 		name: node_info.name,
-				// 		hostname: node_info.hostname
-				// 	});
-				// 	$tHeader.append(output);
-				// }
-
 				// Build header
 				var $tHeader = $('<tr></tr>');
 				$tHeader.append($('<th></th>')); // Empty corner cell
@@ -236,18 +252,23 @@ bespin = {
 					var node_info = bespin.nodes[node];
 					var output = bespin.templates.table_view.node({
 						name: node_info.name,
-						hostname: node_info.hostname
+						hostname: node_info.hostname || node_info.host
 					});
 					$tHeader.append(output);
+					if(require_unassigned) {
+						var output = bespin.templates.table_view.node({
+							name: 'Unassigned',
+							hostname: 'n/a'
+						});
+						$tHeader.append(output)
+					}
 				}
-				// TODO - Unassigned shards? refresh total is number of shards?
 				$output.find('thead').append($tHeader);
 
 				// Build content
 				for(var key in index_keys) {
 					var index_name = index_keys[key];
 					var index = bespin.indices[index_name];
-					console.log(index);
 					var $indexRow = $('<tr></tr>');
 					// Add the index name
 					var output = bespin.templates.table_view.index({
@@ -258,6 +279,7 @@ bespin = {
 					$indexRow.append(output);
 
 					// Work out shard cells
+					$indexRow.append('<td></td>');
 					$indexRow.append('<td></td>');
 
 
