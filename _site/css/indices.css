@@ -100,3 +100,18 @@
 #content_indices.vertical_view .index .size {
 	font-weight: normal;
 }
+#content_indices.vertical_view .shards div {
+	float: left;
+	font-size: 20px;
+	padding: 5px;
+	border: 2px solid #77aa77;
+	background-color: #99cc99;
+	margin-right: 10px;
+}
+#content_indices.vertical_view .shards div:last-child {
+	margin-right: 0px;
+}
+#content_indices.vertical_view .shards div.unassigned {
+	border-color: #999999;
+	background-color: #bbbbbb;
+}

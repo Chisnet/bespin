@@ -280,8 +280,27 @@ bespin = {
 					$indexRow.append(output);
 
 					// TODO - Work out shard cells
-					$indexRow.append('<td></td>');
-					$indexRow.append('<td></td>');
+					for(var node_index in node_keys) {
+						var node = node_keys[node_index];
+						var $node_html = $('<td class="shards"></td>');
+						for(var shard in index.shards) {
+							if(node == index.shards[shard][0].routing.node) {
+								//TODO - Identify status for colouring
+								$node_html.append('<div>'+shard+'</div>');
+							}
+						}
+						$indexRow.append($node_html);
+					}
+
+					// Unassigned
+					if(require_unassigned) {
+						var $node_html = $('<td class="shards"></td>');
+						var unassigned = index._shards.total - index._shards.successful - index._shards.failed;
+						for(var i=0; i<unassigned; i++) {
+							$node_html.append('<div class="unassigned">'+i+'</div>');
+						}
+						$indexRow.append($node_html);
+					}
 
 					$output.find('tbody').append($indexRow);
 				}
