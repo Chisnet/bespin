@@ -21,22 +21,26 @@
 			<div class="status"><span class="title">Status:</span> <span id="connectionStatus" class="unknown">Disconnected</span></div>
 		</div>
 		<div id="nav">
-			<div id="navLeft"></div>
+			<div id="tabs">
+				<div id="tab_indices" data-content="indices" class="tab active">Indices</div>
+				<div id="tab_browser" data-content="browser" class="tab">Browser</div>
+			</div>
 			<div id="navRight">
 				<div id="viewSelect">
 					<label for="viewType">View: </label>
 					<select id="viewType">
 						<option value="alias" selected="selected">Aliases</option>
 						<option value="vertical">Vertical Grid</option>
-						<option value="horizontal">Horizontal Grid</option>
+						<!-- <option value="horizontal">Horizontal Grid</option> -->
 					</select>
 					<button type="button" id="refreshButton">Refresh</button>
 				</div>
 			</div>
 		</div>
 		<div id="content">
-			<div id="content_indices"></div>
-		</div>
+			<div id="content_indices" class="active"></div>
+			<div id="content_browser">Browser</div>
+ 		</div>
 		<!-- Scripts -->
 		<script src="js/lib/jquery.min.js"></script>
 		<script src="js/lib/jquery.cookie.min.js"></script>

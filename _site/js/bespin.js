@@ -172,6 +172,9 @@ bespin = {
 						bespin.indices[index_name]._shards = data._shards;
 					}
 				}
+				else {
+					console.log('Error retrieving segments!');
+				}
 				break;
 			default:
 				console.log('Unknown Response!');
@@ -180,7 +183,7 @@ bespin = {
 	},
 	draw_indices: function() {
 		$('#content_indices').empty();
-		$('#content_indices').removeClass().addClass(this.view_type+'_view');
+		$('#content_indices').removeClass('alias_view vertical_view horizontal_view').addClass(this.view_type+'_view');
 		var alias_keys = Object.keys(bespin.aliases).sort();
 		var index_keys = Object.keys(bespin.indices).sort();
 		var node_keys = Object.keys(bespin.nodes).sort();
@@ -339,5 +342,10 @@ $(function(){
 		$.cookie("view_type", view_type, { expires:7, path:'/' });
 		bespin.view_type = view_type;
 		bespin.draw_indices();
+	});
+	$('.tab').bind('click', function() {
+		var content_type = $(this).data('content');
+		$(this).addClass('active').siblings().removeClass('active');
+		$('#content_'+content_type).addClass('active').siblings().removeClass('active');
 	});
 });
