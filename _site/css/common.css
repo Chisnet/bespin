@@ -38,8 +38,6 @@ body {
 	line-height: 25px;
 	font-size: 14px;
 	padding-left: 10px;
-}
-#header .status .title {
 	font-weight: bold;
 }
 
@@ -98,10 +96,10 @@ body {
 
 /* States */
 .error {
-	color: #aa0000;
+	color: #cc0000;
 }
 .warning {
-	color: #aaaa00;
+	color: #cc9900;
 }
 .ok {
 	color: #00aa00;

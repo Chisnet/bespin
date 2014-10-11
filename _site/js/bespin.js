@@ -128,7 +128,8 @@ bespin = {
 					var connected_message = 'Connected';
 					var connected_status = 'ok';
 					connected_message += ' (' + bespin.shards.successful + ' of ' + bespin.shards.total + ' shards)';
-					if(bespin.shards.failed > 0){connected_status = 'warning';}
+					if(bespin.shards.total > (bespin.shards.successful + bespin.shards.failed)){connected_status = 'warning';}
+					if(bespin.shards.failed > 0){connected_status = 'error';}
 					$('#connectionStatus').removeClass().addClass(connected_status).text(connected_message);
 				} else {
 					bespin.status = 'error';
