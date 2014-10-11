@@ -7,6 +7,9 @@ bespin = {
 	nodes: {},
 	aliases: {},
 	indices: {},
+	node_keys: [],
+	alias_keys: [],
+	index_keys: [],
 	shards: {
 		successful: 0,
 		failed: 0,
@@ -84,7 +87,7 @@ bespin = {
 			for(var i in bespin.index_keys){
 				bespin.es_request('segments', bespin.index_keys[i]);
 			}
-			bespin.draw_indices();
+			bespin.draw_overview();
 		}
 		else {
 			// TODO: Clean up data / displays
@@ -186,9 +189,9 @@ bespin = {
 		bespin.index_keys = Object.keys(bespin.indices).sort();
 		bespin.node_keys = Object.keys(bespin.nodes).sort();
 	},
-	draw_indices: function() {
-		$('#content_indices').empty();
-		$('#content_indices').removeClass('alias_view vertical_view horizontal_view').addClass(this.view_type+'_view');
+	draw_overview: function() {
+		$('#content_overview').empty();
+		$('#content_overview').removeClass('alias_view vertical_view horizontal_view').addClass(this.view_type+'_view');
 
 		// Check if we require an "Unassigned" node
 		var require_unassigned = false;
@@ -220,7 +223,7 @@ bespin = {
 						};
 
 						var output = bespin.templates.alias_view.alias(data);
-						$('#content_indices').append(output)
+						$('#content_overview').append(output)
 					}
 				}
 				for(var key in bespin.alias_keys) {
@@ -233,15 +236,15 @@ bespin = {
 								index: bespin.build_index_object(index_name)
 							};
 							var output = bespin.templates.alias_view.index(index_data);
-							$('#content_indices').append(output);
+							$('#content_overview').append(output);
 						}
 					}
 				}
-				$('#content_indices .index').bind('mouseenter', function() {
+				$('#content_overview .index').bind('mouseenter', function() {
 					var index_name = $(this).data('name');
-					$('#content_indices .index-'+index_name).addClass('highlight');
+					$('#content_overview .index-'+index_name).addClass('highlight');
 				}).bind('mouseleave', function() {
-					$('#content_indices .index').removeClass('highlight');
+					$('#content_overview .index').removeClass('highlight');
 				});
 				break;
 			case 'vertical':
@@ -310,11 +313,11 @@ bespin = {
 				}
 
 				// Write to DOM
-				$('#content_indices').append($output);
+				$('#content_overview').append($output);
 				break;
 			case 'horizontal':
 				var output = bespin.templates.table_view.table();
-				$('#content_indices').append(output);
+				$('#content_overview').append(output);
 				break;
 		}
 	},
@@ -342,7 +345,7 @@ $(function(){
 		var view_type = $(this).val();
 		$.cookie("view_type", view_type, { expires:7, path:'/' });
 		bespin.view_type = view_type;
-		bespin.draw_indices();
+		bespin.draw_overview();
 	});
 	$('.tab').bind('click', function() {
 		var content_type = $(this).data('content');
