@@ -70,9 +70,25 @@ bespin = {
 	},
 	connect: function(url) {
 		$('#connectionStatus').removeClass().addClass('unknown').text('Connecting...');
+		bespin.status = 'connecting';
 		bespin.server_url = url;
 		$.cookie("server_url", url, { expires:7, path:'/' });
-		bespin.es_request('connect');
+		bespin.refresh();
+	},
+	refresh: function() {
+		bespin.es_request('status');
+		if(bespin.status == 'connected') {
+			bespin.es_request('nodes');
+			bespin.es_request('aliases');
+			bespin.organize_data();
+			for(var i in bespin.index_keys){
+				bespin.es_request('segments', bespin.index_keys[i]);
+			}
+			bespin.draw_indices();
+		}
+		else {
+			// TODO: Clean up data / displays
+		}
 	},
 	es_request: function(request_name, index_name) {
 		var request_path = bespin.server_url;
@@ -80,23 +96,14 @@ bespin = {
 			request_path += index_name + '/'
 		}
 		var request_type = 'GET';
-		switch(request_name) {
-			case 'connect':
-				request_path += '_status';
-				break;
-			case 'nodes':
-				request_path += '_nodes'
-				break;
-			case 'aliases':
-				request_path += '_aliases';
-				break;
-			case 'segments':
-				request_path += '_segments';
-				break;
-			default:
-				console.log('Unknown Request!');
-				return;
+
+		var accepted_request_types = ['status', 'nodes', 'aliases', 'segments'];
+		if(!request_name.indexOf(accepted_request_types)) {
+			console.log('Unknown Request!');
+			return;
 		}
+		request_path += '_' + request_name;
+
 		$.ajax({
 			async: false,
 			url: request_path,
@@ -106,25 +113,22 @@ bespin = {
 		}).fail(function(){
 			bespin.process_response(request_name, index_name, false);
 		});
-		return false;
 	},
 	process_response: function(request_name, index_name, data) {
 		switch(request_name) {
-			case 'connect':
+			case 'status':
 				if(data) {
 					bespin.status = 'connected';
 					bespin.shards.successful = data._shards.successful;
 					bespin.shards.failed = data._shards.failed;
 					bespin.shards.total = data._shards.total;
 					bespin.indices = data.indices;
-					bespin.es_request('nodes');
 
 					var connected_message = 'Connected';
 					var connected_status = 'ok';
 					connected_message += ' (' + bespin.shards.successful + ' of ' + bespin.shards.total + ' shards)';
 					if(bespin.shards.failed > 0){connected_status = 'warning';}
 					$('#connectionStatus').removeClass().addClass(connected_status).text(connected_message);
-					
 				} else {
 					bespin.status = 'error';
 					$('#connectionStatus').removeClass().addClass('error').text('Connection Error!');
@@ -133,7 +137,6 @@ bespin = {
 			case 'nodes':
 				if(data) {
 					bespin.nodes = data.nodes;
-					bespin.es_request('aliases');
 				}
 				else {
 					console.log('Error retrieving nodes!');
@@ -145,7 +148,6 @@ bespin = {
 						'NONE': []
 					};
 					for(var index in data) {
-						bespin.es_request('segments', index);
 						if(Object.keys(data[index].aliases).length) {
 							for(var alias in data[index].aliases) {
 								if(!aliases[alias]) {
@@ -158,9 +160,7 @@ bespin = {
 							aliases['NONE'].push(index);
 						}
 					}
-
 					bespin.aliases = aliases;
-					bespin.draw_indices();
 				} else {
 					console.log('Error retrieving aliases!');
 				}
@@ -181,17 +181,19 @@ bespin = {
 				break;
 		}
 	},
+	organize_data: function() {
+		bespin.alias_keys = Object.keys(bespin.aliases).sort();
+		bespin.index_keys = Object.keys(bespin.indices).sort();
+		bespin.node_keys = Object.keys(bespin.nodes).sort();
+	},
 	draw_indices: function() {
 		$('#content_indices').empty();
 		$('#content_indices').removeClass('alias_view vertical_view horizontal_view').addClass(this.view_type+'_view');
-		var alias_keys = Object.keys(bespin.aliases).sort();
-		var index_keys = Object.keys(bespin.indices).sort();
-		var node_keys = Object.keys(bespin.nodes).sort();
 
 		// Check if we require an "Unassigned" node
 		var require_unassigned = false;
-		for(var key in index_keys) {
-			var index_name = index_keys[key];
+		for(var key in bespin.index_keys) {
+			var index_name = bespin.index_keys[key];
 			var index = bespin.indices[index_name];
 			if((index._shards.successful + index._shards.failed) < index._shards.total) {
 				require_unassigned = true;
@@ -200,8 +202,8 @@ bespin = {
 
 		switch(this.view_type) {
 			case 'alias':
-				for(var key in alias_keys) {
-					var alias = alias_keys[key];
+				for(var key in bespin.alias_keys) {
+					var alias = bespin.alias_keys[key];
 					if(alias != 'NONE') {
 						var data = {
 							name: alias,
@@ -221,8 +223,8 @@ bespin = {
 						$('#content_indices').append(output)
 					}
 				}
-				for(var key in alias_keys) {
-					var alias = alias_keys[key];
+				for(var key in bespin.alias_keys) {
+					var alias = bespin.alias_keys[key];
 					if(alias == 'NONE') {
 						var indices = bespin.aliases[alias].sort();
 						for(var index in indices) {
@@ -269,8 +271,8 @@ bespin = {
 				$output.find('thead').append($tHeader);
 
 				// Build content
-				for(var key in index_keys) {
-					var index_name = index_keys[key];
+				for(var key in bespin.index_keys) {
+					var index_name = bespin.index_keys[key];
 					var index = bespin.indices[index_name];
 					var $indexRow = $('<tr></tr>');
 
@@ -282,9 +284,8 @@ bespin = {
 					});
 					$indexRow.append(output);
 
-					// TODO - Work out shard cells
-					for(var node_index in node_keys) {
-						var node = node_keys[node_index];
+					for(var node_index in bespin.node_keys) {
+						var node = bespin.node_keys[node_index];
 						var $node_html = $('<td class="shards"></td>');
 						for(var shard in index.shards) {
 							if(node == index.shards[shard][0].routing.node) {
@@ -335,7 +336,7 @@ $(function(){
 		bespin.connect(connectionURL);
 	});
 	$('#refreshButton').bind('click', function() {
-		bespin.es_request('connect');
+		bespin.refresh();
 	});
 	$('#viewType').bind('change', function() {
 		var view_type = $(this).val();
