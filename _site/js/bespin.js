@@ -15,6 +15,7 @@ bespin = {
 		failed: 0,
 		total: 0
 	},
+	unassigned_nodes: false,
 	templates: {
 		alias_view: {
 			alias: _.template(
@@ -84,9 +85,6 @@ bespin = {
 			bespin.es_request('nodes');
 			bespin.es_request('cluster/state');
 			bespin.organize_data();
-			for(var i in bespin.index_keys){
-				bespin.es_request('segments', bespin.index_keys[i]);
-			}
 			bespin.draw_overview();
 		}
 		else {
@@ -100,7 +98,7 @@ bespin = {
 		}
 		var request_type = 'GET';
 
-		var accepted_request_names = ['status', 'nodes', 'segments', 'cluster/state'];
+		var accepted_request_names = ['status', 'nodes', 'cluster/state'];
 		if(!request_name.indexOf(accepted_request_names)) {
 			console.log('Unknown Request!');
 			return;
@@ -145,17 +143,6 @@ bespin = {
 					console.log('Error retrieving nodes!');
 				}
 				break;
-			case 'segments':
-				if(data) {
-					if(typeof(index_name) != 'undefined') {
-						// We're dealing with an individual index
-						bespin.indices[index_name]._shards = data._shards;
-					}
-				}
-				else {
-					console.log('Error retrieving segments!');
-				}
-				break;
 			case 'cluster/state':
 				if(data) {
 					// Extract alias information
@@ -178,7 +165,10 @@ bespin = {
 					}
 					bespin.aliases = aliases;
 					// Extract shard information
-
+					var index_routing = data.routing_table.indices;
+					for(var index in index_routing) {
+						bespin.indices[index].shards = index_routing[index].shards;
+					}
 				}
 				else {
 					console.log('Error restrieving cluster state!');
@@ -193,20 +183,13 @@ bespin = {
 		bespin.alias_keys = Object.keys(bespin.aliases).sort();
 		bespin.index_keys = Object.keys(bespin.indices).sort();
 		bespin.node_keys = Object.keys(bespin.nodes).sort();
+		if((bespin.shards.successful + bespin.shards.failed) < bespin.shards.total) {
+			bespin.unassigned_nodes = true;
+		}
 	},
 	draw_overview: function() {
 		$('#content_overview').empty();
 		$('#content_overview').removeClass('alias_view vertical_view horizontal_view').addClass(this.view_type+'_view');
-
-		// Check if we require an "Unassigned" node
-		var require_unassigned = false;
-		for(var key in bespin.index_keys) {
-			var index_name = bespin.index_keys[key];
-			var index = bespin.indices[index_name];
-			if((index._shards.successful + index._shards.failed) < index._shards.total) {
-				require_unassigned = true;
-			}
-		}
 
 		switch(this.view_type) {
 			case 'alias':
@@ -268,7 +251,7 @@ bespin = {
 						hostname: node_info.hostname || node_info.host
 					});
 					$tHeader.append(output);
-					if(require_unassigned) {
+					if(bespin.unassigned_nodes) {
 						var output = bespin.templates.table_view.node({
 							name: 'Unassigned',
 							hostname: 'n/a'
@@ -292,24 +275,32 @@ bespin = {
 					});
 					$indexRow.append(output);
 
+					// Assigned shards
 					for(var node_index in bespin.node_keys) {
 						var node = bespin.node_keys[node_index];
 						var $node_html = $('<td class="shards"></td>');
 						for(var shard in index.shards) {
-							if(node == index.shards[shard][0].routing.node) {
-								//TODO - Identify status for colouring
-								$node_html.append('<div>'+shard+'</div>');
+							var node_shards = index.shards[shard];
+							for(var node_shard in node_shards) {
+								if(node == node_shards[node_shard].node) {
+									//TODO - Identify status for colouring
+									$node_html.append('<div>'+shard+'</div>');
+								}
 							}
 						}
 						$indexRow.append($node_html);
 					}
 
-					// Unassigned
-					if(require_unassigned) {
+					// Unassigned shards
+					if(bespin.unassigned_nodes) {
 						var $node_html = $('<td class="shards"></td>');
-						var unassigned = index._shards.total - index._shards.successful - index._shards.failed;
-						for(var i=0; i<unassigned; i++) {
-							$node_html.append('<div class="unassigned">'+i+'</div>');
+						for(var shard in index.shards) {
+							var node_shards = index.shards[shard];
+							for(var node_shard in node_shards) {
+								if(node_shards[node_shard].state == 'UNASSIGNED') {
+									$node_html.append('<div class="unassigned">'+shard+'</div>');
+								}
+							}
 						}
 						$indexRow.append($node_html);
 					}
