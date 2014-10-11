@@ -82,7 +82,7 @@ bespin = {
 		bespin.es_request('status');
 		if(bespin.status == 'connected') {
 			bespin.es_request('nodes');
-			bespin.es_request('aliases');
+			bespin.es_request('cluster/state');
 			bespin.organize_data();
 			for(var i in bespin.index_keys){
 				bespin.es_request('segments', bespin.index_keys[i]);
@@ -100,8 +100,8 @@ bespin = {
 		}
 		var request_type = 'GET';
 
-		var accepted_request_types = ['status', 'nodes', 'aliases', 'segments'];
-		if(!request_name.indexOf(accepted_request_types)) {
+		var accepted_request_names = ['status', 'nodes', 'segments', 'cluster/state'];
+		if(!request_name.indexOf(accepted_request_names)) {
 			console.log('Unknown Request!');
 			return;
 		}
@@ -145,14 +145,27 @@ bespin = {
 					console.log('Error retrieving nodes!');
 				}
 				break;
-			case 'aliases':
+			case 'segments':
 				if(data) {
+					if(typeof(index_name) != 'undefined') {
+						// We're dealing with an individual index
+						bespin.indices[index_name]._shards = data._shards;
+					}
+				}
+				else {
+					console.log('Error retrieving segments!');
+				}
+				break;
+			case 'cluster/state':
+				if(data) {
+					// Extract alias information
+					var index_metadata = data.metadata.indices;
 					var aliases = {
 						'NONE': []
 					};
-					for(var index in data) {
-						if(Object.keys(data[index].aliases).length) {
-							for(var alias in data[index].aliases) {
+					for(var index in index_metadata) {
+						if(Object.keys(index_metadata[index].aliases).length) {
+							for(var alias in index_metadata[index].aliases) {
 								if(!aliases[alias]) {
 									aliases[alias] = [];
 								}
@@ -164,19 +177,11 @@ bespin = {
 						}
 					}
 					bespin.aliases = aliases;
-				} else {
-					console.log('Error retrieving aliases!');
-				}
-				break;
-			case 'segments':
-				if(data) {
-					if(typeof(index_name) != 'undefined') {
-						// We're dealing with an individual index
-						bespin.indices[index_name]._shards = data._shards;
-					}
+					// Extract shard information
+
 				}
 				else {
-					console.log('Error retrieving segments!');
+					console.log('Error restrieving cluster state!');
 				}
 				break;
 			default:

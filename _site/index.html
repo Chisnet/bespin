@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="css/overview.css"/>
 	</head>
 	<body>
-		<!-- Navigation -->
+		<!-- Header -->
 		<div id="header">
 			<div id="branding">
 				<img src="img/logo.gif" alt="Bespin"/>
@@ -20,6 +20,7 @@
 			</div>
 			<div class="status"><span class="title">Status:</span> <span id="connectionStatus" class="unknown">Disconnected</span></div>
 		</div>
+		<!-- Navigation -->
 		<div id="nav">
 			<div id="tabs">
 				<div id="tab_overview" data-content="overview" class="tab active">Overview</div>
@@ -37,10 +38,18 @@
 				</div>
 			</div>
 		</div>
+		<!-- Content -->
 		<div id="content">
 			<div id="content_overview" class="active"></div>
-			<div id="content_browser">Browser</div>
- 		</div>
+			<div id="content_browser">
+				<div id="content_browser_left">
+
+				</div>
+				<div id="content_browser_right">
+					
+				</div>
+			</div>
+		</div>
 		<!-- Scripts -->
 		<script src="js/lib/jquery.min.js"></script>
 		<script src="js/lib/jquery.cookie.min.js"></script>
