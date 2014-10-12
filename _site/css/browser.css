@@ -7,3 +7,15 @@
     width: 300px;
     margin-top: 5px;
 }
+#content_browser_left option {
+    padding: 2px;
+}
+#content_browser_left optgroup {
+    text-indent: 2px;
+}
+#content_browser_left optgroup option {
+    text-indent: 10px;
+}
+#content_browser_left .browser_group {
+    margin-bottom: 10px;
+}

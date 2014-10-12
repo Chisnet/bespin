@@ -330,7 +330,8 @@ bespin = {
 	},
 	build_browser: function() {
 		var $index_dropdown = $('#browser_indices');
-		$index_dropdown.append('<option value="">---</option>');
+		$index_dropdown.empty();
+		$index_dropdown.append('<option value="">--</option>');
 		var alias_count = bespin.alias_keys.length;
 		if(bespin.alias_keys.indexOf('NONE') > -1) {
 			alias_count -= 1;
