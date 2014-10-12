@@ -86,6 +86,7 @@ bespin = {
 			bespin.es_request('cluster/state');
 			bespin.organize_data();
 			bespin.draw_overview();
+			bespin.build_browser();
 		}
 		else {
 			// TODO: Clean up data / displays
@@ -146,7 +147,7 @@ bespin = {
 				break;
 			case 'cluster/state':
 				if(data) {
-					// Extract alias information
+					// Extract alias and mapping information
 					var index_metadata = data.metadata.indices;
 					var aliases = {
 						'NONE': []
@@ -163,6 +164,7 @@ bespin = {
 						else {
 							aliases['NONE'].push(index);
 						}
+						bespin.indices[index].mappings = index_metadata[index].mappings;
 					}
 					bespin.aliases = aliases;
 					// Extract shard information
@@ -324,6 +326,25 @@ bespin = {
 			name: index_name,
 			docs: index_data ? index_data.docs.num_docs : 'unknown',
 			size: index_data ? index_data.index.primary_size : 'unknown',
+		}
+	},
+	build_browser: function() {
+		var $index_dropdown = $('#browser_indices');
+		$index_dropdown.append('<option value="">---</option>');
+		var alias_count = bespin.alias_keys.length;
+		if(bespin.alias_keys.indexOf('NONE') > -1) {
+			alias_count -= 1;
+		}
+		if(alias_count > 0) {
+			console.log('there are aliases');
+		}
+		if(bespin.index_keys.length) {
+			var $opt_group = $('<optgroup label="Indices"></optgroup>');
+			for(var i in bespin.index_keys) {
+				var index_name = bespin.index_keys[i];
+				$opt_group.append('<option value="'+index_name+'">'+index_name+'</option>');
+			}
+			$index_dropdown.append($opt_group);
 		}
 	}
 };
