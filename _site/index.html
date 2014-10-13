@@ -17,7 +17,7 @@
 			</div>
 			<div id="connectionBox">
 				<input type="text" id="connectionURL" placeholder="Enter the Elastic Search server address here..." value="http://localhost:9200/"/>
-				<button type="button" id="connectionButton">Connect</button>
+				<button type="button" id="connection_button">Connect</button>
 			</div>
 			<div class="status"><span class="title">Status:</span> <span id="connectionStatus" class="unknown">Disconnected</span></div>
 		</div>
@@ -29,13 +29,13 @@
 			</div>
 			<div id="navRight">
 				<div id="viewSelect">
-					<label for="viewType">View: </label>
-					<select id="viewType">
+					<label for="view_type">View: </label>
+					<select id="view_type">
 						<option value="alias" selected="selected">Aliases</option>
 						<option value="vertical">Vertical Grid</option>
 						<!-- <option value="horizontal">Horizontal Grid</option> -->
 					</select>
-					<button type="button" id="refreshButton">Refresh</button>
+					<button type="button" id="refresh_button">Refresh</button>
 				</div>
 			</div>
 		</div>

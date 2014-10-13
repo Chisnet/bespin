@@ -63,7 +63,7 @@ bespin = {
 		// Get the view type first so when we connect we can render immediately in the correct view
         var cookieViewType = $.cookie('view_type');
         if (cookieViewType !== undefined) {
-        	$('#viewType').val(cookieViewType);
+        	$('#view_type').val(cookieViewType);
         	this.view_type = cookieViewType;
         }
 		var cookieURL = $.cookie('server_url');
@@ -154,7 +154,8 @@ bespin = {
 					};
 					for(var index in index_metadata) {
 						if(Object.keys(index_metadata[index].aliases).length) {
-							for(var alias in index_metadata[index].aliases) {
+							for(var i in index_metadata[index].aliases) {
+								var alias = index_metadata[index].aliases[i];
 								if(!aliases[alias]) {
 									aliases[alias] = [];
 								}
@@ -337,13 +338,20 @@ bespin = {
 			alias_count -= 1;
 		}
 		if(alias_count > 0) {
-			console.log('there are aliases');
+			var $opt_group = $('<optgroup label="Aliases"></optgroup>');
+			for(var i in bespin.alias_keys) {
+				var alias_name = bespin.alias_keys[i];
+				if(alias_name != 'NONE') {
+					$opt_group.append('<option value="alias_'+alias_name+'">'+alias_name+'</option>');
+				}
+			}
+			$index_dropdown.append($opt_group);
 		}
 		if(bespin.index_keys.length) {
 			var $opt_group = $('<optgroup label="Indices"></optgroup>');
 			for(var i in bespin.index_keys) {
 				var index_name = bespin.index_keys[i];
-				$opt_group.append('<option value="'+index_name+'">'+index_name+'</option>');
+				$opt_group.append('<option value="index_'+index_name+'">'+index_name+'</option>');
 			}
 			$index_dropdown.append($opt_group);
 		}
@@ -353,14 +361,14 @@ bespin = {
 // Bind events
 $(function(){
 	bespin.init();
-	$('#connectionButton').bind('click', function() {
+	$('#connection_button').bind('click', function() {
 		var connectionURL = $('#connectionURL').val();
 		bespin.connect(connectionURL);
 	});
-	$('#refreshButton').bind('click', function() {
+	$('#refresh_button').bind('click', function() {
 		bespin.refresh();
 	});
-	$('#viewType').bind('change', function() {
+	$('#view_type').bind('change', function() {
 		var view_type = $(this).val();
 		$.cookie("view_type", view_type, { expires:7, path:'/' });
 		bespin.view_type = view_type;
@@ -370,5 +378,18 @@ $(function(){
 		var content_type = $(this).data('content');
 		$(this).addClass('active').siblings().removeClass('active');
 		$('#content_'+content_type).addClass('active').siblings().removeClass('active');
+	});
+	$('#browser_indices').bind('change', function() {
+		var browser_index = $(this).val();
+		if(browser_index != '') {
+			var browser_index_type = browser_index.substr(0,5);
+			var browser_index_name = browser_index.substr(6);
+			if(browser_index_type == 'alias') {
+
+			}
+			else {
+				
+			}
+		}
 	});
 });
