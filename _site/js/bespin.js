@@ -1,6 +1,6 @@
 // Bespin
 var bespin = window.bespin || {};
-bespin = {
+$.extend(bespin, {
 	status: 'disconnected',
 	server_url: '',
 	view_type: 'alias',
@@ -148,31 +148,27 @@ bespin = {
 			case 'cluster/state':
 				if(data) {
 					// Extract alias and mapping information
-					var index_metadata = data.metadata.indices;
-					var aliases = {
-						'NONE': []
-					};
-					for(var index in index_metadata) {
-						if(Object.keys(index_metadata[index].aliases).length) {
-							for(var i in index_metadata[index].aliases) {
-								var alias = index_metadata[index].aliases[i];
+					var aliases = {'NONE': []};
+					_.each(data.metadata.indices, function(index_obj, index_name){
+						if(_.keys(index_obj.aliases).length) {
+							_.each(index_obj.aliases, function(alias){
 								if(!aliases[alias]) {
 									aliases[alias] = [];
 								}
-								aliases[alias].push(index);
-							}
+								aliases[alias].push(index_name);
+							});
 						}
 						else {
-							aliases['NONE'].push(index);
+							aliases['NONE'].push(index_name);
 						}
-						bespin.indices[index].mappings = index_metadata[index].mappings;
-					}
+						bespin.indices[index_name].mappings = index_obj.mappings;
+					});
 					bespin.aliases = aliases;
+
 					// Extract shard information
-					var index_routing = data.routing_table.indices;
-					for(var index in index_routing) {
-						bespin.indices[index].shards = index_routing[index].shards;
-					}
+					_.each(data.routing_table.indices, function(routing, index){
+						bespin.indices[index].shards = routing.shards;
+					});
 				}
 				else {
 					console.log('Error restrieving cluster state!');
@@ -248,11 +244,10 @@ bespin = {
 				// Build header
 				var $tHeader = $('<tr></tr>');
 				$tHeader.append($('<th></th>')); // Empty corner cell
-				for(var node in bespin.nodes) {
-					var node_info = bespin.nodes[node];
+				_.each(bespin.nodes, function(node){
 					var output = bespin.templates.table_view.node({
-						name: node_info.name,
-						hostname: node_info.hostname || node_info.host
+						name: node.name,
+						hostname: node.hostname || node.host
 					});
 					$tHeader.append(output);
 					if(bespin.unassigned_nodes) {
@@ -262,12 +257,11 @@ bespin = {
 						});
 						$tHeader.append(output)
 					}
-				}
+				});
 				$output.find('thead').append($tHeader);
 
 				// Build content
-				for(var key in bespin.index_keys) {
-					var index_name = bespin.index_keys[key];
+				_.each(bespin.index_keys, function(index_name){
 					var index = bespin.indices[index_name];
 					var $indexRow = $('<tr></tr>');
 
@@ -280,37 +274,34 @@ bespin = {
 					$indexRow.append(output);
 
 					// Assigned shards
-					for(var node_index in bespin.node_keys) {
-						var node = bespin.node_keys[node_index];
+					_.each(bespin.node_keys, function(node){
 						var $node_html = $('<td class="shards"></td>');
-						for(var shard in index.shards) {
-							var node_shards = index.shards[shard];
-							for(var node_shard in node_shards) {
-								if(node == node_shards[node_shard].node) {
+						_.each(index.shards, function(node_shards, shard_num){
+							_.each(node_shards, function(node_shard){
+								if(node == node_shard.node) {
 									//TODO - Identify status for colouring
-									$node_html.append('<div>'+shard+'</div>');
+									$node_html.append('<div>'+shard_num+'</div>');
 								}
-							}
-						}
+							});
+						});
 						$indexRow.append($node_html);
-					}
+					});
 
 					// Unassigned shards
 					if(bespin.unassigned_nodes) {
 						var $node_html = $('<td class="shards"></td>');
-						for(var shard in index.shards) {
-							var node_shards = index.shards[shard];
-							for(var node_shard in node_shards) {
-								if(node_shards[node_shard].state == 'UNASSIGNED') {
-									$node_html.append('<div class="unassigned">'+shard+'</div>');
+						_.each(index.shards, function(node_shards, shard_num){
+							_.each(node_shards, function(node_shard){
+								if(node_shard.state == 'UNASSIGNED') {
+									$node_html.append('<div class="unassigned">'+shard_num+'</div>');
 								}
-							}
-						}
+							});
+						});
 						$indexRow.append($node_html);
 					}
 
 					$output.find('tbody').append($indexRow);
-				}
+				});
 
 				// Write to DOM
 				$('#content_overview').append($output);
@@ -339,24 +330,22 @@ bespin = {
 		}
 		if(alias_count > 0) {
 			var $opt_group = $('<optgroup label="Aliases"></optgroup>');
-			for(var i in bespin.alias_keys) {
-				var alias_name = bespin.alias_keys[i];
+			_.each(bespin.alias_keys, function(alias_name){
 				if(alias_name != 'NONE') {
 					$opt_group.append('<option value="alias_'+alias_name+'">'+alias_name+'</option>');
 				}
-			}
+			});
 			$index_dropdown.append($opt_group);
 		}
 		if(bespin.index_keys.length) {
 			var $opt_group = $('<optgroup label="Indices"></optgroup>');
-			for(var i in bespin.index_keys) {
-				var index_name = bespin.index_keys[i];
+			_.each(bespin.index_keys, function(index_name){
 				$opt_group.append('<option value="index_'+index_name+'">'+index_name+'</option>');
-			}
+			});
 			$index_dropdown.append($opt_group);
 		}
 	}
-};
+});
 
 // Bind events
 $(function(){
