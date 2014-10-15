@@ -1,6 +1,7 @@
 // Bespin Core
 var bespin = window.bespin || {};
 $.extend(bespin, {
+	// Define variables
 	status: 'disconnected',
 	server_url: '',
 	view_type: 'alias',
@@ -24,6 +25,7 @@ $.extend(bespin, {
         	$('#view_type').val(cookieViewType);
         	this.view_type = cookieViewType;
         }
+        // Attempt to grab the last connection URL from cookie, and connect, otherwise don't try connecting
 		var cookieURL = $.cookie('server_url');
         if (cookieURL !== undefined) {
             $('#connectionURL').val(cookieURL);
@@ -35,10 +37,13 @@ $.extend(bespin, {
 		bespin.status = 'connecting';
 		bespin.server_url = url;
 		$.cookie("server_url", url, { expires:7, path:'/' });
+		// Refresh all content
 		bespin.refresh();
 	},
 	refresh: function() {
+		// Attempt to get ES status
 		bespin.es_request('status');
+		// If we successfully get a good status request all other data and organise/render it
 		if(bespin.status == 'connected') {
 			bespin.es_request('nodes');
 			bespin.es_request('cluster/state');
@@ -51,19 +56,24 @@ $.extend(bespin, {
 		}
 	},
 	es_request: function(request_name, index_name) {
+		// Build the base request path
 		var request_path = bespin.server_url;
 		if(typeof(index_name) != 'undefined') {
 			request_path += index_name + '/'
 		}
+		// Set the request type, currently we're only sending GET requests
 		var request_type = 'GET';
 
+		// Sanity check the request, probably not really needed
 		var accepted_request_names = ['status', 'nodes', 'cluster/state'];
 		if(!request_name.indexOf(accepted_request_names)) {
 			console.log('Unknown Request!');
 			return;
 		}
+		// Add the specific request to the path
 		request_path += '_' + request_name;
 
+		// Send the request to Elastic Search
 		$.ajax({
 			async: false,
 			url: request_path,
@@ -75,9 +85,12 @@ $.extend(bespin, {
 		});
 	},
 	process_response: function(request_name, index_name, data) {
+		// Handle the response from Elastic Search based on the request that was sent
 		switch(request_name) {
 			case 'status':
 				if(data) {
+					// If we successfully get data back from a status request update the UI to show we've
+					// established a connection and store some initial data
 					bespin.status = 'connected';
 					bespin.shards.successful = data._shards.successful;
 					bespin.shards.failed = data._shards.failed;
@@ -87,6 +100,7 @@ $.extend(bespin, {
 					var connected_message = 'Connected';
 					var connected_status = 'ok';
 					connected_message += ' (' + bespin.shards.successful + ' of ' + bespin.shards.total + ' shards)';
+					// Work out the status highlight colour based off the shard information retrieved
 					if(bespin.shards.total > (bespin.shards.successful + bespin.shards.failed)){connected_status = 'warning';}
 					if(bespin.shards.failed > 0){connected_status = 'error';}
 					$('#connectionStatus').removeClass().addClass(connected_status).text(connected_message);
@@ -97,6 +111,7 @@ $.extend(bespin, {
 				break;
 			case 'nodes':
 				if(data) {
+					// Node response just goes straight into our local object
 					bespin.nodes = data.nodes;
 				}
 				else {
@@ -108,6 +123,7 @@ $.extend(bespin, {
 					// Extract alias and mapping information
 					var aliases = {'NONE': []};
 					_.each(data.metadata.indices, function(index_obj, index_name){
+						// Alias information is a bit hard to process in it's raw form, so we need to organise it
 						if(_.keys(index_obj.aliases).length) {
 							_.each(index_obj.aliases, function(alias){
 								if(!aliases[alias]) {
@@ -119,6 +135,7 @@ $.extend(bespin, {
 						else {
 							aliases['NONE'].push(index_name);
 						}
+						// Mappings are ncie and clean and go straight into our object
 						bespin.indices[index_name].mappings = index_obj.mappings;
 					});
 					bespin.aliases = aliases;
@@ -138,6 +155,7 @@ $.extend(bespin, {
 		}
 	},
 	organize_data: function() {
+		// To facilitate loops we grab and pre-sort the alias, index and node names
 		bespin.alias_keys = Object.keys(bespin.aliases).sort();
 		bespin.index_keys = Object.keys(bespin.indices).sort();
 		bespin.node_keys = Object.keys(bespin.nodes).sort();
@@ -151,8 +169,7 @@ $.extend(bespin, {
 
 		switch(this.view_type) {
 			case 'alias':
-				for(var key in bespin.alias_keys) {
-					var alias = bespin.alias_keys[key];
+				_.each(bespin.alias_keys, function(alias){
 					if(alias != 'NONE') {
 						var data = {
 							name: alias,
@@ -160,32 +177,29 @@ $.extend(bespin, {
 							indexTemplate: bespin.templates.alias_view.index
 						};
 						var indices = bespin.aliases[alias].sort();
-						for(var index in indices) {
-							var index_name = bespin.aliases[alias][index];
+						_.each(indices, function(index_name){
 							var index_data = {
 								index: bespin.build_index_object(index_name)
 							};
 							data.indices.push(index_data);
-						};
-
+						});
 						var output = bespin.templates.alias_view.alias(data);
 						$('#content_overview').append(output)
 					}
-				}
-				for(var key in bespin.alias_keys) {
-					var alias = bespin.alias_keys[key];
+				});
+				_.each(bespin.alias_keys, function(alias){
 					if(alias == 'NONE') {
 						var indices = bespin.aliases[alias].sort();
-						for(var index in indices) {
-							var index_name = bespin.aliases[alias][index];
+
+						_.each(indices, function(index_name){
 							var index_data = {
 								index: bespin.build_index_object(index_name)
 							};
 							var output = bespin.templates.alias_view.index(index_data);
 							$('#content_overview').append(output);
-						}
+						});
 					}
-				}
+				});
 				$('#content_overview .index').bind('mouseenter', function() {
 					var index_name = $(this).data('name');
 					$('#content_overview .index-'+index_name).addClass('highlight');
@@ -237,7 +251,7 @@ $.extend(bespin, {
 						_.each(index.shards, function(node_shards, shard_num){
 							_.each(node_shards, function(node_shard){
 								if(node == node_shard.node) {
-									//TODO - Identify status for colouring
+									// TODO - Identify status for colouring
 									$node_html.append('<div>'+shard_num+'</div>');
 								}
 							});
@@ -271,6 +285,7 @@ $.extend(bespin, {
 		}
 	},
 	build_index_object: function(index_name) {
+		// Builds an object to pass into the underscore template when rendering the alias overview
 		var index_data = bespin.indices[index_name];
 		return {
 			name: index_name,
@@ -305,9 +320,10 @@ $.extend(bespin, {
 	}
 });
 
-// Bind events
 $(function(){
+	// Initialise the plugin
 	bespin.init();
+	// Bind events to the various buttons and dropdowns
 	$('#connection_button').bind('click', function() {
 		var connectionURL = $('#connectionURL').val();
 		bespin.connect(connectionURL);
