@@ -55,7 +55,7 @@ $.extend(bespin, {
 			// TODO: Clean up data / displays
 		}
 	},
-	es_request: function(request_name, index_name, additional_path) {
+	es_request: function(request_name, index_name, additional_path, params) {
 		// Build the base request path
 		var request_path = bespin.server_url;
 		if(typeof(index_name) != 'undefined') {
@@ -75,6 +75,12 @@ $.extend(bespin, {
 		}
 		// Add the specific request to the path
 		request_path += '_' + request_name;
+
+		// Add any query params if required
+		if(typeof(params) == 'object') {
+			params = $.param(params);
+			request_path += '?' + params;
+		}
 
 		// Send the request to Elastic Search
 		$.ajax({
@@ -359,11 +365,42 @@ $.extend(bespin, {
 		if(type_name != '') {
 			search_path = type_name;
 		}
+		var params = {
+			size: 50
+		};
 
-		bespin.es_request('search', index_name, search_path);
+		bespin.es_request('search', index_name, search_path, params);
 	},
 	build_browser_results: function(data) {
-		console.log(data);
+		// Organise result data
+		var headers = ['_id', '_type'];
+		var results = [];
+		_.each(data.hits.hits, function(hit){
+			var result = {};
+			result._id = hit._id;
+			result._type = hit._type;
+			var fields = [];
+			_.each(hit._source, function(value, field){
+				fields.push(field);
+				result[field] = value;
+			});
+			results.push(result);
+			headers = _.union(headers, fields);
+		});
+
+		// Display result data
+		var $results_table = $('#browser_results');
+		$results_table.empty();
+		// Header
+		var $header_row = $('<tr></tr>');
+		_.each(headers, function(header){
+			$header_row.append('<th>'+header+'</th>');
+		});
+		$results_table.append($header_row);
+		// Results
+		_.each(results, function(result){
+			console.log(result);
+		});
 	}
 });
 
