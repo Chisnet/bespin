@@ -55,17 +55,20 @@ $.extend(bespin, {
 			// TODO: Clean up data / displays
 		}
 	},
-	es_request: function(request_name, index_name) {
+	es_request: function(request_name, index_name, additional_path) {
 		// Build the base request path
 		var request_path = bespin.server_url;
 		if(typeof(index_name) != 'undefined') {
-			request_path += index_name + '/'
+			request_path += index_name + '/';
+		}
+		if(typeof(additional_path) != 'undefined') {
+			request_path += additional_path + '/';
 		}
 		// Set the request type, currently we're only sending GET requests
 		var request_type = 'GET';
 
 		// Sanity check the request, probably not really needed
-		var accepted_request_names = ['status', 'nodes', 'cluster/state'];
+		var accepted_request_names = ['status', 'nodes', 'cluster/state', 'search'];
 		if(!request_name.indexOf(accepted_request_names)) {
 			console.log('Unknown Request!');
 			return;
@@ -146,7 +149,15 @@ $.extend(bespin, {
 					});
 				}
 				else {
-					console.log('Error restrieving cluster state!');
+					console.log('Error retrieving cluster state!');
+				}
+				break;
+			case 'search':
+				if(data) {
+					bespin.build_browser_results(data);
+				}
+				else {
+					console.log('Error performing search!');
 				}
 				break;
 			default:
@@ -340,6 +351,19 @@ $.extend(bespin, {
 				$type_dropdown.append('<option value="'+mapping_name+'">'+mapping_name+'</option>');
 			});
 		}
+	},
+	browse: function() {
+		var search_path;
+		var index_name = $('#browser_indices').val().substr(6);
+		var type_name = $('#browser_types').val();
+		if(type_name != '') {
+			search_path = type_name;
+		}
+
+		bespin.es_request('search', index_name, search_path);
+	},
+	build_browser_results: function(data) {
+		console.log(data);
 	}
 });
 
@@ -371,6 +395,12 @@ $(function(){
 			var browser_index_type = browser_index.substr(0,5);
 			var browser_index_name = browser_index.substr(6);
 			bespin.build_type_browser(browser_index_type, browser_index_name);
+			bespin.browse();
+		}
+	});
+	$('#browser_types').bind('change', function() {
+		if($('#browser_indices').val() != '') {
+			bespin.browse();
 		}
 	});
 });
