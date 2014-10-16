@@ -49,7 +49,7 @@ $.extend(bespin, {
 			bespin.es_request('cluster/state');
 			bespin.organize_data();
 			bespin.draw_overview();
-			bespin.build_browser();
+			bespin.build_index_browser();
 		}
 		else {
 			// TODO: Clean up data / displays
@@ -293,7 +293,7 @@ $.extend(bespin, {
 			size: index_data ? index_data.index.primary_size : 'unknown',
 		}
 	},
-	build_browser: function() {
+	build_index_browser: function() {
 		var $index_dropdown = $('#browser_indices');
 		$index_dropdown.empty();
 		$index_dropdown.append('<option value="">--</option>');
@@ -316,6 +316,29 @@ $.extend(bespin, {
 				$opt_group.append('<option value="index_'+index_name+'">'+index_name+'</option>');
 			});
 			$index_dropdown.append($opt_group);
+		}
+	},
+	build_type_browser: function(index_type, index_name) {
+		var $type_dropdown = $('#browser_types');
+		$type_dropdown.empty();
+		$type_dropdown.append('<option value="">--</option>');
+		if(index_type == 'alias') {
+			_.each(bespin.aliases[index_name], function(alias_index_name){
+				var mappings = bespin.indices[alias_index_name].mappings;
+				var type_list = [];
+				_.each(mappings, function(mapping_data, mapping_name){
+					type_list.push(mapping_name);
+				});
+				_.each(type_list, function(mapping_name){
+					$type_dropdown.append('<option value="'+mapping_name+'">'+mapping_name+'</option>');
+				});
+			});
+		}
+		else {
+			var mappings = bespin.indices[index_name].mappings;
+			_.each(mappings, function(mapping_data, mapping_name){
+				$type_dropdown.append('<option value="'+mapping_name+'">'+mapping_name+'</option>');
+			});
 		}
 	}
 });
@@ -347,12 +370,7 @@ $(function(){
 		if(browser_index != '') {
 			var browser_index_type = browser_index.substr(0,5);
 			var browser_index_name = browser_index.substr(6);
-			if(browser_index_type == 'alias') {
-
-			}
-			else {
-				
-			}
+			bespin.build_type_browser(browser_index_type, browser_index_name);
 		}
 	});
 });
