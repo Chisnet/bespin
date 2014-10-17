@@ -47,16 +47,26 @@
 			<div id="content_browser">
 				<div id="content_browser_left">
 					<div class="browser_group">
-						<label for="browser_indices">Select an alias or index to browse:</label>
-						<select id="browser_indices">
-							<option value="">--</option>
-						</select>
-					</div>
-					<div class="browser_group">
-						<label for="browser_types">Select a type to filter the search on:</label>
-						<select id="browser_types">
-							<option value="">--</option>
-						</select>
+						<div class="browser_option">
+							<label for="browser_indices">Select an alias or index to browse:</label>
+							<select id="browser_indices">
+								<option value="">--</option>
+							</select>
+						</div>
+						<div class="browser_option">
+							<label for="browser_types">Select a type to filter the search on:</label>
+							<select id="browser_types">
+								<option value="">--</option>
+							</select>
+						</div>
+						<div class="browser_option">
+							<label for="browser_size">Select the number of results to return:</label>
+							<select id="browser_size">
+								<option value="10">10</option>
+								<option value="25" selected>25</option>
+								<option value="50">50</option>
+							</select>
+						</div>
 					</div>
 				</div>
 				<div id="content_browser_right">

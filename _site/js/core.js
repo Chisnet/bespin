@@ -33,7 +33,7 @@ $.extend(bespin, {
         }
 	},
 	connect: function(url) {
-		bespin.logger.info('Connecting...');
+		bespin.logger.info('Connecting to '+url+'...');
 		$('#connectionStatus').removeClass().addClass('unknown').text('Connecting...');
 		bespin.status = 'connecting';
 		bespin.server_url = url;
@@ -371,7 +371,7 @@ $.extend(bespin, {
 			search_path = type_name;
 		}
 		var params = {
-			size: 25
+			size: $('#browser_size').val()
 		};
 
 		bespin.es_request('search', index_name, search_path, params);
