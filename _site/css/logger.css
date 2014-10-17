@@ -1,0 +1,30 @@
+#content_log_messages {
+	padding: 10px;
+}
+#content_log_messages > div {
+	background-color: #fff;
+    border: 1px solid #999;
+    border-top: none;
+    padding: 5px;
+}
+#content_log_messages > div:first-child {
+	border-top: 1px solid #999;
+}
+#content_log_messages > div.error {
+	background-color: #fcc;
+	color: #f44;
+	font-weight: bold;
+}
+#content_log_messages > div.debug {
+	background-color: #ccf;
+	color: #44f;
+}
+#content_log_messages > div.warn {
+	background-color: #fdb;
+	color: #f84;
+	font-weight: bold;
+}
+#content_log_messages .timestamp {
+	font-weight: normal;
+	color: #666;
+}

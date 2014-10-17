@@ -33,6 +33,7 @@ $.extend(bespin, {
         }
 	},
 	connect: function(url) {
+		bespin.logger.info('Connecting...');
 		$('#connectionStatus').removeClass().addClass('unknown').text('Connecting...');
 		bespin.status = 'connecting';
 		bespin.server_url = url;
@@ -69,8 +70,8 @@ $.extend(bespin, {
 
 		// Sanity check the request, probably not really needed
 		var accepted_request_names = ['status', 'nodes', 'cluster/state', 'search'];
-		if(!request_name.indexOf(accepted_request_names)) {
-			console.log('Unknown Request!');
+		if(accepted_request_names.indexOf(request_name) < 0) {
+			bespin.logger.warn('Unknown Request!');
 			return;
 		}
 		// Add the specific request to the path
@@ -83,6 +84,7 @@ $.extend(bespin, {
 		}
 
 		// Send the request to Elastic Search
+		bespin.logger.debug('Sending ES request: '+request_path);
 		$.ajax({
 			async: false,
 			url: request_path,
@@ -95,11 +97,13 @@ $.extend(bespin, {
 	},
 	process_response: function(request_name, index_name, data) {
 		// Handle the response from Elastic Search based on the request that was sent
+		bespin.logger.debug('Processing ES response...');
 		switch(request_name) {
 			case 'status':
 				if(data) {
 					// If we successfully get data back from a status request update the UI to show we've
 					// established a connection and store some initial data
+					bespin.logger.info('Connected!');
 					bespin.status = 'connected';
 					bespin.shards.successful = data._shards.successful;
 					bespin.shards.failed = data._shards.failed;
@@ -114,6 +118,7 @@ $.extend(bespin, {
 					if(bespin.shards.failed > 0){connected_status = 'error';}
 					$('#connectionStatus').removeClass().addClass(connected_status).text(connected_message);
 				} else {
+					bespin.logger.error('Connection Error!');
 					bespin.status = 'error';
 					$('#connectionStatus').removeClass().addClass('error').text('Connection Error!');
 				}
@@ -124,7 +129,7 @@ $.extend(bespin, {
 					bespin.nodes = data.nodes;
 				}
 				else {
-					console.log('Error retrieving nodes!');
+					bespin.logger.error('Error retrieving nodes!');
 				}
 				break;
 			case 'cluster/state':
@@ -155,7 +160,7 @@ $.extend(bespin, {
 					});
 				}
 				else {
-					console.log('Error retrieving cluster state!');
+					bespin.logger.error('Error retrieving cluster state!');
 				}
 				break;
 			case 'search':
@@ -163,11 +168,11 @@ $.extend(bespin, {
 					bespin.build_browser_results(data);
 				}
 				else {
-					console.log('Error performing search!');
+					bespin.logger.error('Error performing search!');
 				}
 				break;
 			default:
-				console.log('Unknown Response!');
+				bespin.logger.warn('Unknown Response!');
 				break;
 		}
 	},

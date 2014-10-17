@@ -1,4 +1,4 @@
-// Bespin
+// Bespin Templates
 var bespin = window.bespin || {};
 $.extend(bespin, {
     templates: {
