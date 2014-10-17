@@ -366,19 +366,20 @@ $.extend(bespin, {
 			search_path = type_name;
 		}
 		var params = {
-			size: 50
+			size: 25
 		};
 
 		bespin.es_request('search', index_name, search_path, params);
 	},
 	build_browser_results: function(data) {
 		// Organise result data
-		var headers = ['_id', '_type'];
+		var headers = ['_index', '_type', '_id'];
 		var results = [];
 		_.each(data.hits.hits, function(hit){
 			var result = {};
-			result._id = hit._id;
+			result._index = hit._index;
 			result._type = hit._type;
+			result._id = hit._id;
 			var fields = [];
 			_.each(hit._source, function(value, field){
 				fields.push(field);
@@ -399,7 +400,37 @@ $.extend(bespin, {
 		$results_table.append($header_row);
 		// Results
 		_.each(results, function(result){
-			console.log(result);
+			$result_row = $('<tr></tr>');
+			_.each(headers, function(field){
+				if(_.has(result, field)) {
+					var value = result[field];
+					if(typeof value == 'string') {
+						var truncated = false;
+						if(value.length > 50) {
+							value = value.substr(0,50);
+							value += '...';
+							truncated = true;
+						}
+						value = _.escape(value);
+						if(truncated) {
+							value += '<div class="expander inline" data-index="'+result._index+'" data-type="'+result._type+'" data-id="'+result._id+'" data-field="'+field+'">...</div>';
+						}
+					}
+					if(typeof value == 'object') {
+						if(value != null) {
+							value = '<div class="expander" data-index="'+result._index+'" data-type="'+result._type+'" data-id="'+result._id+'" data-field="'+field+'">...</div>';
+						}
+						else {
+							value = 'null';
+						}
+					}
+					$result_row.append('<td>'+value+'</td>');
+				}
+				else {
+					$result_row.append('<td class="empty">[missing]</td>');
+				}
+			});
+			$results_table.append($result_row);
 		});
 	}
 });
