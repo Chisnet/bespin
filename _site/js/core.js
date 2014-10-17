@@ -476,4 +476,9 @@ $(function(){
 			bespin.browse();
 		}
 	});
+	$('#browser_size').bind('change', function() {
+		if($('#browser_indices').val() != '') {
+			bespin.browse();
+		}
+	});
 });
