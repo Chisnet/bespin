@@ -378,7 +378,7 @@ $.extend(bespin, {
 	},
 	build_browser_results: function(data) {
 		// Organise result data
-		var headers = ['_index', '_type', '_id'];
+		var headers = [];
 		var results = [];
 		_.each(data.hits.hits, function(hit){
 			var result = {};
@@ -393,6 +393,10 @@ $.extend(bespin, {
 			results.push(result);
 			headers = _.union(headers, fields);
 		});
+		// Sort the type specific headers alphabetically
+		headers.sort();
+		// Add the core headers
+		headers = _.union(['_index', '_type', '_id'], headers);
 
 		// Display result data
 		var $results_table = $('#browser_results');
@@ -436,6 +440,16 @@ $.extend(bespin, {
 				}
 			});
 			$results_table.append($result_row);
+		});
+		bespin.populate_filters_dropdown(headers);
+	},
+	populate_filters_dropdown: function(headers){
+		// Populate filters dropdown
+		var $filters_dropdown = $('#browser_filters');
+		$filters_dropdown.empty();
+		$filters_dropdown.append('<option value="">--</option>');
+		_.each(headers, function(field){
+			$filters_dropdown.append('<option value="'+field+'">'+field+'</option>');
 		});
 	}
 });

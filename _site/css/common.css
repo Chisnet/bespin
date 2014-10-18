@@ -4,6 +4,12 @@ body {
 	font-family: Arial, sans-serif;
 	font-size: 12px;
 }
+button {
+    background-color: #28d;
+    border: 1px solid #17c;
+    border-radius: 2px;
+    color: #fff;
+}
 
 /* Header */
 #header {
@@ -26,10 +32,6 @@ body {
 	width: 350px;
 }
 #connectionBox button {
-	background-color: #28d;
-	border: 1px solid #17c;
-	border-radius: 2px;
-	color: #fff;
 	height: 23px;
 	width: 75px;
 }
@@ -57,10 +59,6 @@ body {
 	height: 20px;
 }
 #nav button {
-	background-color: #28d;
-	border: 1px solid #17c;
-	border-radius: 2px;
-	color: #fff;
 	height: 20px;
 }
 

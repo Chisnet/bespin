@@ -34,6 +34,14 @@
 #content_browser_left .browser_option {
     margin-bottom: 10px;
 }
+#content_browser_left #browser_filters {
+    width: 275px;
+}
+#content_browser_left #add_filter_button {
+    height: 21px;
+    width: 21px;
+    font-weight: bold;
+}
 
 /* Right Section */
 #content_browser_right {
