@@ -31,6 +31,47 @@ $.extend(bespin, {
             $('#connectionURL').val(cookieURL);
             this.connect(cookieURL);
         }
+        bespin.bind_events();
+	},
+	bind_events: function() {
+		// Bind events to the various buttons and dropdowns
+		$('#connection_button').bind('click', function() {
+			var connectionURL = $('#connectionURL').val();
+			bespin.connect(connectionURL);
+		});
+		$('#refresh_button').bind('click', function() {
+			bespin.refresh();
+		});
+		$('#view_type').bind('change', function() {
+			var view_type = $(this).val();
+			$.cookie("view_type", view_type, { expires:7, path:'/' });
+			bespin.view_type = view_type;
+			bespin.draw_overview();
+		});
+		$('.tab').bind('click', function() {
+			var content_type = $(this).data('content');
+			$(this).addClass('active').siblings().removeClass('active');
+			$('#content_'+content_type).addClass('active').siblings().removeClass('active');
+		});
+		$('#browser_indices').bind('change', function() {
+			var browser_index = $(this).val();
+			if(browser_index != '') {
+				var browser_index_type = browser_index.substr(0,5);
+				var browser_index_name = browser_index.substr(6);
+				bespin.build_type_browser(browser_index_type, browser_index_name);
+				bespin.browse();
+			}
+		});
+		$('#browser_types').bind('change', function() {
+			if($('#browser_indices').val() != '') {
+				bespin.browse();
+			}
+		});
+		$('#browser_size').bind('change', function() {
+			if($('#browser_indices').val() != '') {
+				bespin.browse();
+			}
+		});
 	},
 	connect: function(url) {
 		bespin.logger.info('Connecting to '+url+'...');
@@ -457,42 +498,4 @@ $.extend(bespin, {
 $(function(){
 	// Initialise the plugin
 	bespin.init();
-	// Bind events to the various buttons and dropdowns
-	$('#connection_button').bind('click', function() {
-		var connectionURL = $('#connectionURL').val();
-		bespin.connect(connectionURL);
-	});
-	$('#refresh_button').bind('click', function() {
-		bespin.refresh();
-	});
-	$('#view_type').bind('change', function() {
-		var view_type = $(this).val();
-		$.cookie("view_type", view_type, { expires:7, path:'/' });
-		bespin.view_type = view_type;
-		bespin.draw_overview();
-	});
-	$('.tab').bind('click', function() {
-		var content_type = $(this).data('content');
-		$(this).addClass('active').siblings().removeClass('active');
-		$('#content_'+content_type).addClass('active').siblings().removeClass('active');
-	});
-	$('#browser_indices').bind('change', function() {
-		var browser_index = $(this).val();
-		if(browser_index != '') {
-			var browser_index_type = browser_index.substr(0,5);
-			var browser_index_name = browser_index.substr(6);
-			bespin.build_type_browser(browser_index_type, browser_index_name);
-			bespin.browse();
-		}
-	});
-	$('#browser_types').bind('change', function() {
-		if($('#browser_indices').val() != '') {
-			bespin.browse();
-		}
-	});
-	$('#browser_size').bind('change', function() {
-		if($('#browser_indices').val() != '') {
-			bespin.browse();
-		}
-	});
 });
