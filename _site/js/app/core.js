@@ -1,8 +1,7 @@
-define(["jquery", "underscore", "logger", "templates", "cookie"], function($, _, logger, templates) {
+define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _, logger, signalbus) {
 	var core = {
 		status: 'disconnected',
 		server_url: '',
-		view_type: 'alias',
 		nodes: {},
 		aliases: {},
 		indices: {},
@@ -17,12 +16,6 @@ define(["jquery", "underscore", "logger", "templates", "cookie"], function($, _,
 		unassigned_nodes: false,
 
 		init: function(){
-			// Get the view type first so when we connect we can render immediately in the correct view
-			var cookieViewType = $.cookie('view_type');
-			if (cookieViewType !== undefined) {
-				$('#view_type').val(cookieViewType);
-				this.view_type = cookieViewType;
-			}
 			// Attempt to grab the last connection URL from cookie, and connect, otherwise don't try connecting
 			var cookieURL = $.cookie('server_url');
 			if (cookieURL !== undefined) {
@@ -41,35 +34,10 @@ define(["jquery", "underscore", "logger", "templates", "cookie"], function($, _,
 			$('#refresh_button').bind('click', function() {
 				that.refresh();
 			});
-			$('#view_type').bind('change', function() {
-				var view_type = $(this).val();
-				$.cookie("view_type", view_type, { expires:7, path:'/' });
-				that.view_type = view_type;
-				that.draw_overview();
-			});
 			$('.tab').bind('click', function() {
 				var content_type = $(this).data('content');
 				$(this).addClass('active').siblings().removeClass('active');
 				$('#content_'+content_type).addClass('active').siblings().removeClass('active');
-			});
-			$('#browser_indices').bind('change', function() {
-				var browser_index = $(this).val();
-				if(browser_index != '') {
-					var browser_index_type = browser_index.substr(0,5);
-					var browser_index_name = browser_index.substr(6);
-					that.build_type_browser(browser_index_type, browser_index_name);
-					that.browse();
-				}
-			});
-			$('#browser_types').bind('change', function() {
-				if($('#browser_indices').val() != '') {
-					that.browse();
-				}
-			});
-			$('#browser_size').bind('change', function() {
-				if($('#browser_indices').val() != '') {
-					that.browse();
-				}
 			});
 		},
 		connect: function(url) {
@@ -89,11 +57,11 @@ define(["jquery", "underscore", "logger", "templates", "cookie"], function($, _,
 				this.es_request('nodes');
 				this.es_request('cluster/state');
 				this.organize_data();
-				this.draw_overview();
-				this.build_index_browser();
+				signalbus.dispatch('refresh');
 			}
 			else {
-				// TODO: Clean up data / displays
+				// TODO - Actually listen to this somewhere
+				signalbus.dispatch('cleanup');
 			}
 		},
 		es_request: function(request_name, index_name, additional_path, params) {
@@ -207,7 +175,7 @@ define(["jquery", "underscore", "logger", "templates", "cookie"], function($, _,
 					break;
 				case 'search':
 					if(data) {
-						this.build_browser_results(data);
+						signalbus.dispatch('search_results', data);
 					}
 					else {
 						logger.error('Error performing search!');
@@ -226,277 +194,6 @@ define(["jquery", "underscore", "logger", "templates", "cookie"], function($, _,
 			if((this.shards.successful + this.shards.failed) < this.shards.total) {
 				this.unassigned_nodes = true;
 			}
-		},
-		draw_overview: function() {
-			$('#content_overview').empty();
-			$('#content_overview').removeClass('alias_view vertical_view horizontal_view').addClass(this.view_type+'_view');
-
-			var that = this;
-
-			switch(this.view_type) {
-				case 'alias':
-					_.each(this.alias_keys, function(alias){
-						if(alias != 'NONE') {
-							var data = {
-								name: alias,
-								indices: [],
-								indexTemplate: templates.alias_view.index
-							};
-							var indices = that.aliases[alias].sort();
-							_.each(indices, function(index_name){
-								var index_data = {
-									index: that.build_index_object(index_name)
-								};
-								data.indices.push(index_data);
-							});
-							var output = templates.alias_view.alias(data);
-							$('#content_overview').append(output)
-						}
-					});
-					_.each(this.alias_keys, function(alias){
-						if(alias == 'NONE') {
-							var indices = that.aliases[alias].sort();
-
-							_.each(indices, function(index_name){
-								var index_data = {
-									index: that.build_index_object(index_name)
-								};
-								var output = templates.alias_view.index(index_data);
-								$('#content_overview').append(output);
-							});
-						}
-					});
-					$('#content_overview .index').bind('mouseenter', function() {
-						var index_name = $(this).data('name');
-						$('#content_overview .index-'+index_name).addClass('highlight');
-					}).bind('mouseleave', function() {
-						$('#content_overview .index').removeClass('highlight');
-					});
-					break;
-				case 'vertical':
-					var $output = $(templates.table_view.table());
-
-					// Pre-form data
-					var output_data = {};
-					var that = this;
-
-					// Build header
-					var $tHeader = $('<tr></tr>');
-					$tHeader.append($('<th></th>')); // Empty corner cell
-					_.each(this.nodes, function(node){
-						var output = templates.table_view.node({
-							name: node.name,
-							hostname: node.hostname || node.host
-						});
-						$tHeader.append(output);
-						if(that.unassigned_nodes) {
-							var output = templates.table_view.node({
-								name: 'Unassigned',
-								hostname: 'n/a'
-							});
-							$tHeader.append(output)
-						}
-					});
-					$output.find('thead').append($tHeader);
-
-					// Build content
-					_.each(this.index_keys, function(index_name){
-						var index = that.indices[index_name];
-						var $indexRow = $('<tr></tr>');
-
-						// Add the index name
-						var output = templates.table_view.index({
-							name: index_name,
-							docs: index.docs.num_docs,
-							size: index.index.primary_size || (index.index.primary_size_in_bytes + ' Bytes')
-						});
-						$indexRow.append(output);
-
-						// Assigned shards
-						_.each(that.node_keys, function(node){
-							var $node_html = $('<td class="shards"></td>');
-							_.each(index.shards, function(node_shards, shard_num){
-								_.each(node_shards, function(node_shard){
-									if(node == node_shard.node) {
-										// TODO - Identify status for colouring
-										$node_html.append('<div>'+shard_num+'</div>');
-									}
-								});
-							});
-							$indexRow.append($node_html);
-						});
-
-						// Unassigned shards
-						if(that.unassigned_nodes) {
-							var $node_html = $('<td class="shards"></td>');
-							_.each(index.shards, function(node_shards, shard_num){
-								_.each(node_shards, function(node_shard){
-									if(node_shard.state == 'UNASSIGNED') {
-										$node_html.append('<div class="unassigned">'+shard_num+'</div>');
-									}
-								});
-							});
-							$indexRow.append($node_html);
-						}
-
-						$output.find('tbody').append($indexRow);
-					});
-
-					// Write to DOM
-					$('#content_overview').append($output);
-					break;
-				case 'horizontal':
-					var output = templates.table_view.table();
-					$('#content_overview').append(output);
-					break;
-			}
-		},
-		build_index_object: function(index_name) {
-			// Builds an object to pass into the underscore template when rendering the alias overview
-			var index_data = this.indices[index_name];
-			return {
-				name: index_name,
-				docs: index_data ? index_data.docs.num_docs : 'unknown',
-				size: index_data ? index_data.index.primary_size : 'unknown',
-			}
-		},
-		build_index_browser: function() {
-			var $index_dropdown = $('#browser_indices');
-			$index_dropdown.empty();
-			$index_dropdown.append('<option value="">--</option>');
-			var alias_count = this.alias_keys.length;
-			if(this.alias_keys.indexOf('NONE') > -1) {
-				alias_count -= 1;
-			}
-			if(alias_count > 0) {
-				var $opt_group = $('<optgroup label="Aliases"></optgroup>');
-				_.each(this.alias_keys, function(alias_name){
-					if(alias_name != 'NONE') {
-						$opt_group.append('<option value="alias_'+alias_name+'">'+alias_name+'</option>');
-					}
-				});
-				$index_dropdown.append($opt_group);
-			}
-			if(this.index_keys.length) {
-				var $opt_group = $('<optgroup label="Indices"></optgroup>');
-				_.each(this.index_keys, function(index_name){
-					$opt_group.append('<option value="index_'+index_name+'">'+index_name+'</option>');
-				});
-				$index_dropdown.append($opt_group);
-			}
-		},
-		build_type_browser: function(index_type, index_name) {
-			var that = this;
-			var $type_dropdown = $('#browser_types');
-			$type_dropdown.empty();
-			$type_dropdown.append('<option value="">--</option>');
-			if(index_type == 'alias') {
-				_.each(this.aliases[index_name], function(alias_index_name){
-					var mappings = that.indices[alias_index_name].mappings;
-					var type_list = [];
-					_.each(mappings, function(mapping_data, mapping_name){
-						type_list.push(mapping_name);
-					});
-					_.each(type_list, function(mapping_name){
-						$type_dropdown.append('<option value="'+mapping_name+'">'+mapping_name+'</option>');
-					});
-				});
-			}
-			else {
-				var mappings = this.indices[index_name].mappings;
-				_.each(mappings, function(mapping_data, mapping_name){
-					$type_dropdown.append('<option value="'+mapping_name+'">'+mapping_name+'</option>');
-				});
-			}
-		},
-		browse: function() {
-			var search_path;
-			var index_name = $('#browser_indices').val().substr(6);
-			var type_name = $('#browser_types').val();
-			if(type_name != '') {
-				search_path = type_name;
-			}
-			var params = {
-				size: $('#browser_size').val()
-			};
-
-			this.es_request('search', index_name, search_path, params);
-		},
-		build_browser_results: function(data) {
-			// Organise result data
-			var headers = [];
-			var results = [];
-			_.each(data.hits.hits, function(hit){
-				var result = {};
-				result._index = hit._index;
-				result._type = hit._type;
-				result._id = hit._id;
-				var fields = [];
-				_.each(hit._source, function(value, field){
-					fields.push(field);
-					result[field] = value;
-				});
-				results.push(result);
-				headers = _.union(headers, fields);
-			});
-			// Sort the type specific headers alphabetically
-			headers.sort();
-			// Add the core headers
-			headers = _.union(['_index', '_type', '_id'], headers);
-
-			// Display result data
-			var $results_table = $('#browser_results');
-			$results_table.empty();
-			// Header
-			var $header_row = $('<tr></tr>');
-			_.each(headers, function(header){
-				$header_row.append('<th>'+header+'</th>');
-			});
-			$results_table.append($header_row);
-			// Results
-			_.each(results, function(result){
-				$result_row = $('<tr></tr>');
-				_.each(headers, function(field){
-					if(_.has(result, field)) {
-						var value = result[field];
-						if(typeof value == 'string') {
-							var truncated = false;
-							if(value.length > 50) {
-								value = value.substr(0,50);
-								value += '...';
-								truncated = true;
-							}
-							value = _.escape(value);
-							if(truncated) {
-								value += '<div class="expander inline" data-index="'+result._index+'" data-type="'+result._type+'" data-id="'+result._id+'" data-field="'+field+'">...</div>';
-							}
-						}
-						if(typeof value == 'object') {
-							if(value != null) {
-								value = '<div class="expander" data-index="'+result._index+'" data-type="'+result._type+'" data-id="'+result._id+'" data-field="'+field+'">...</div>';
-							}
-							else {
-								value = 'null';
-							}
-						}
-						$result_row.append('<td>'+value+'</td>');
-					}
-					else {
-						$result_row.append('<td class="empty">[missing]</td>');
-					}
-				});
-				$results_table.append($result_row);
-			});
-			this.populate_filters_dropdown(headers);
-		},
-		populate_filters_dropdown: function(headers){
-			// Populate filters dropdown
-			var $filters_dropdown = $('#browser_filters');
-			$filters_dropdown.empty();
-			$filters_dropdown.append('<option value="">--</option>');
-			_.each(headers, function(field){
-				$filters_dropdown.append('<option value="'+field+'">'+field+'</option>');
-			});
 		}
 	}
 	core.init();

@@ -3,7 +3,8 @@ require.config({
     paths: {
     	jquery: '../lib/jquery',
     	underscore: '../lib/underscore',
-    	cookie: '../lib/jquery.cookie'
+    	cookie: '../lib/jquery.cookie',
+        signalbus: '../lib/signalbus'
     },
     shim: {
     	'underscore': {
@@ -13,4 +14,8 @@ require.config({
     }
 });
 
-require(['core']);
+require([
+    'core',
+    'overview',
+    'browser'
+]);
