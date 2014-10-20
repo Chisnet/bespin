@@ -1,7 +1,5 @@
-// Bespin Templates
-var bespin = window.bespin || {};
-$.extend(bespin, {
-    templates: {
+define(["underscore"], function(_) {
+	var templates = {
         alias_view: {
             alias: _.template(
                 '<div class="alias">\
@@ -42,5 +40,6 @@ $.extend(bespin, {
                 </th>'
             )
         }
-    }
+    };
+    return templates;
 });
