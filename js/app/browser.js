@@ -1,5 +1,7 @@
-define(["jquery", "underscore", "logger", "signalbus", "core"], function($, _, logger, signalbus, core) {
+define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], function($, _, logger, signalbus, core, templates) {
     var browser = {
+        current_filters: [],
+
         init: function() {
             // Bind events
             this.bind_events();
@@ -33,6 +35,17 @@ define(["jquery", "underscore", "logger", "signalbus", "core"], function($, _, l
             $('#browser_size').bind('change', function() {
                 if($('#browser_indices').val() != '') {
                     that.browse();
+                }
+            });
+            $('#add_filter_button').bind('click', function() {
+                var filter_field = $('#browser_filter').val();
+                if(that.current_filters.indexOf(filter_field) < 0) {
+                    that.current_filters.push(filter_field);
+                    var template_data = {
+                        field_name: filter_field
+                    };
+                    var output = templates.browser.filter(template_data);
+                    $('#browser_filters').append(output);
                 }
             });
         },
@@ -166,7 +179,7 @@ define(["jquery", "underscore", "logger", "signalbus", "core"], function($, _, l
         },
         populate_filters_dropdown: function(headers){
             // Populate filters dropdown
-            var $filters_dropdown = $('#browser_filters');
+            var $filters_dropdown = $('#browser_filter');
             $filters_dropdown.empty();
             $filters_dropdown.append('<option value="">--</option>');
             _.each(headers, function(field){

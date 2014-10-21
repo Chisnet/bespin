@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "logger", "templates", "signalbus", "core"], function($, _, logger, templates, signalbus, core) {
+define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], function($, _, logger, signalbus, core, templates) {
     var overview = {
         view_type: 'alias',
         init: function() {

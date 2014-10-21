@@ -39,6 +39,15 @@ define(["underscore"], function(_) {
                     <span class="info size">Size: <%= size %></span>\
                 </th>'
             )
+        },
+        browser: {
+            filter: _.template(
+                '<div class="">\
+                    <label for="filter_<%= field_name %>"><%= field_name %></label>\
+                    <input type="text" id="filter_<%= field_name %>"/>\
+                    <button type="button" class="remove_filter" data-filter="<%= field_name %>">-</button>\
+                </div>'
+            )
         }
     };
     return templates;
