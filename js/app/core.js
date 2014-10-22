@@ -51,11 +51,26 @@ define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _,
 		},
 		refresh: function() {
 			// Attempt to get ES status
-			this.es_request('status');
+			var that = this;
+			this.es_request('_status', null, function(data){
+				that.process_status_response(data);
+			});
+
 			// If we successfully get a good status request all other data and organise/render it
 			if(this.status == 'connected') {
-				this.es_request('nodes');
-				this.es_request('cluster/state');
+				var that = this;
+				this.es_request('_nodes', null, function(data){
+					if(typeof(data) != 'undefined') {
+						// Node response just goes straight into our local object
+						that.nodes = data.nodes;
+					}
+					else {
+						logger.error('Error retrieving nodes!');
+					}
+				});
+				this.es_request('_cluster/state', null, function(data){
+					that.process_cluster_response(data);
+				});
 				this.organize_data();
 				signalbus.dispatch('refresh');
 			}
@@ -64,126 +79,83 @@ define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _,
 				signalbus.dispatch('cleanup');
 			}
 		},
-		es_request: function(request_name, index_name, additional_path, params) {
-			// Build the base request path
-			var request_path = this.server_url;
-			if(typeof(index_name) != 'undefined') {
-				request_path += index_name + '/';
-			}
-			if(typeof(additional_path) != 'undefined') {
-				request_path += additional_path + '/';
-			}
-			// Set the request type, currently we're only sending GET requests
-			var request_type = 'GET';
-
-			// Sanity check the request, probably not really needed
-			var accepted_request_names = ['status', 'nodes', 'cluster/state', 'search'];
-			if(accepted_request_names.indexOf(request_name) < 0) {
-				logger.warn('Unknown Request!');
-				return;
-			}
-			// Add the specific request to the path
-			request_path += '_' + request_name;
+		es_request: function(path, params, callback) {
+			var request_path = this.server_url + path + '/';
 
 			// Add any query params if required
-			if(typeof(params) == 'object') {
+			if(params != null && typeof(params) == 'object') {
 				params = $.param(params);
 				request_path += '?' + params;
 			}
 
-			// Send the request to Elastic Search
-			logger.debug('Sending ES request: '+request_path);
+			logger.debug('Sending ES request: ' + request_path);
 			var that = this;
 			$.ajax({
 				async: false,
 				url: request_path,
-				type: request_type
+				type: 'GET'
 			}).done(function(data){
-				that.process_response(request_name, index_name, data);
+				logger.debug('Request successful, processing response...');
+				callback.call(that, data);
 			}).fail(function(){
-				that.process_response(request_name, index_name, false);
+				logger.error('Request failed!');
+				callback.call(that);
 			});
 		},
-		process_response: function(request_name, index_name, data) {
-			// Handle the response from Elastic Search based on the request that was sent
-			logger.debug('Processing ES response...');
-			switch(request_name) {
-				case 'status':
-					if(data) {
-						// If we successfully get data back from a status request update the UI to show we've
-						// established a connection and store some initial data
-						logger.info('Connected!');
-						this.status = 'connected';
-						this.shards.successful = data._shards.successful;
-						this.shards.failed = data._shards.failed;
-						this.shards.total = data._shards.total;
-						this.indices = data.indices;
+		process_status_response: function(data) {
+			if(typeof(data) != 'undefined'){
+				// If we successfully get data back from a status request update the UI to show we've
+				// established a connection and store some initial data
+				logger.info('Connected!');
+				this.status = 'connected';
+				this.shards.successful = data._shards.successful;
+				this.shards.failed = data._shards.failed;
+				this.shards.total = data._shards.total;
+				this.indices = data.indices;
 
-						var connected_message = 'Connected';
-						var connected_status = 'ok';
-						connected_message += ' (' + this.shards.successful + ' of ' + this.shards.total + ' shards)';
-						// Work out the status highlight colour based off the shard information retrieved
-						if(this.shards.total > (this.shards.successful + this.shards.failed)){connected_status = 'warning';}
-						if(this.shards.failed > 0){connected_status = 'error';}
-						$('#connectionStatus').removeClass().addClass(connected_status).text(connected_message);
-					} else {
-						logger.error('Connection Error!');
-						this.status = 'error';
-						$('#connectionStatus').removeClass().addClass('error').text('Connection Error!');
-					}
-					break;
-				case 'nodes':
-					if(data) {
-						// Node response just goes straight into our local object
-						this.nodes = data.nodes;
-					}
-					else {
-						logger.error('Error retrieving nodes!');
-					}
-					break;
-				case 'cluster/state':
-					if(data) {
-						// Extract alias and mapping information
-						var aliases = {'NONE': []};
-						var that = this;
-						_.each(data.metadata.indices, function(index_obj, index_name){
-							// Alias information is a bit hard to process in it's raw form, so we need to organise it
-							if(_.keys(index_obj.aliases).length) {
-								_.each(index_obj.aliases, function(alias){
-									if(!aliases[alias]) {
-										aliases[alias] = [];
-									}
-									aliases[alias].push(index_name);
-								});
+				var connected_message = 'Connected';
+				var connected_status = 'ok';
+				connected_message += ' (' + this.shards.successful + ' of ' + this.shards.total + ' shards)';
+				// Work out the status highlight colour based off the shard information retrieved
+				if(this.shards.total > (this.shards.successful + this.shards.failed)){connected_status = 'warning';}
+				if(this.shards.failed > 0){connected_status = 'error';}
+				$('#connectionStatus').removeClass().addClass(connected_status).text(connected_message);
+			} else {
+				logger.error('Connection Error!');
+				this.status = 'error';
+				$('#connectionStatus').removeClass().addClass('error').text('Connection Error!');
+			}
+		},
+		process_cluster_response: function(data) {
+			if(typeof(data) != 'undefined') {
+				// Extract alias and mapping information
+				var aliases = {'NONE': []};
+				var that = this;
+				_.each(data.metadata.indices, function(index_obj, index_name){
+					// Alias information is a bit hard to process in it's raw form, so we need to organise it
+					if(_.keys(index_obj.aliases).length) {
+						_.each(index_obj.aliases, function(alias){
+							if(!aliases[alias]) {
+								aliases[alias] = [];
 							}
-							else {
-								aliases['NONE'].push(index_name);
-							}
-							// Mappings are ncie and clean and go straight into our object
-							that.indices[index_name].mappings = index_obj.mappings;
-						});
-						this.aliases = aliases;
-
-						// Extract shard information
-						_.each(data.routing_table.indices, function(routing, index){
-							that.indices[index].shards = routing.shards;
+							aliases[alias].push(index_name);
 						});
 					}
 					else {
-						logger.error('Error retrieving cluster state!');
+						aliases['NONE'].push(index_name);
 					}
-					break;
-				case 'search':
-					if(data) {
-						signalbus.dispatch('search_results', data);
-					}
-					else {
-						logger.error('Error performing search!');
-					}
-					break;
-				default:
-					logger.warn('Unknown Response!');
-					break;
+					// Mappings are ncie and clean and go straight into our object
+					that.indices[index_name].mappings = index_obj.mappings;
+				});
+				this.aliases = aliases;
+
+				// Extract shard information
+				_.each(data.routing_table.indices, function(routing, index){
+					that.indices[index].shards = routing.shards;
+				});
+			}
+			else {
+				logger.error('Error retrieving cluster state!');
 			}
 		},
 		organize_data: function() {

@@ -10,9 +10,6 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             signalbus.listen('refresh', function(){
                 that.build_index_browser();
             });
-            signalbus.listen('search_results', function(data){
-                that.build_browser_results(data);
-            });
             this.build_index_browser();
         },
         bind_events: function() {
@@ -101,14 +98,26 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             var search_path;
             var index_name = $('#browser_indices').val().substr(6);
             var type_name = $('#browser_types').val();
-            if(type_name != '') {
-                search_path = type_name;
-            }
             var params = {
                 size: $('#browser_size').val()
             };
 
-            core.es_request('search', index_name, search_path, params);
+            var search_path = index_name;
+
+            if(type_name != '') {
+                search_path += '/' + type_name;
+            }
+            search_path += '/_search';
+
+            var that = this;
+            core.es_request(search_path, params, function(data){
+                if(typeof(data) != 'undefined') {
+                    that.build_browser_results(data);
+                }
+                else {
+                    logger.error('Error performing search!');
+                }
+            });
         },
         build_browser_results: function(data) {
             // Organise result data
