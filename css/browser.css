@@ -42,6 +42,18 @@
     width: 21px;
     font-weight: bold;
 }
+#content_browser_left #browser_filters {
+    border: 1px solid #aaa;
+    padding: 5px;
+}
+#content_browser_left .filter input {
+    margin-top: 5px;
+    width: 255px;
+}
+#content_browser_left .filter button {
+    background-color: #d66;
+    border-color: #d22;
+}
 
 /* Right Section */
 #content_browser_right {
