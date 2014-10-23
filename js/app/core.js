@@ -103,15 +103,19 @@ define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _,
 			// Build path
 			var request_path = this.server_url + path + '/';
 			// Send request
-			this.es_request('POST', null, data, callback);
+			this.es_request('POST', request_path, data, callback);
 		},
 		es_request: function(request_type, request_path, request_data, callback) {
+			// Build request
 			var ajax_object = {
 				async: false,
 				url: request_path,
 				type: request_type
 			};
-
+			if(request_data != null) {
+				ajax_object.data = request_data;
+			}
+			// Send request
 			logger.debug('Sending ES request: ' + request_path);
 			var that = this;
 			$.ajax(ajax_object).done(function(data){

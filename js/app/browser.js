@@ -109,6 +109,7 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             }
         },
         browse: function() {
+            var that = this;
             var search_path;
             var index_name = $('#browser_indices').val().substr(6);
             var type_name = $('#browser_types').val();
@@ -123,15 +124,43 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             }
             search_path += '/_search';
 
-            var that = this;
-            core.es_get(search_path, params, function(data){
-                if(typeof(data) != 'undefined') {
-                    that.build_browser_results(data);
-                }
-                else {
-                    logger.error('Error performing search!');
-                }
-            });
+            // Build filter object (if required)
+            var valid_filters = 0;
+            var request_body = {};
+            if(this.current_filters.length > 0) {
+                request_body = {query:{bool:{must:[]}}};
+                _.each(this.current_filters, function(filter){
+                    var filter_value = $('#filter_' + filter + '_input').val().toLowerCase();
+                    if(filter_value != '') {
+                        var term = {};
+                        term[filter] = filter_value;
+                        request_body['query']['bool']['must'].push({term:term});
+                        valid_filters += 1;
+                    }
+                });
+            }
+
+            if(valid_filters > 0) {
+                var request_data = JSON.stringify(request_body);
+                core.es_post(search_path, request_data, function(data){
+                    if(typeof(data) != 'undefined') {
+                        that.build_browser_results(data);
+                    }
+                    else {
+                        logger.error('Error performing search!');
+                    }
+                });
+            }
+            else {
+                core.es_get(search_path, params, function(data){
+                    if(typeof(data) != 'undefined') {
+                        that.build_browser_results(data);
+                    }
+                    else {
+                        logger.error('Error performing search!');
+                    }
+                });
+            }
         },
         build_browser_results: function(data) {
             // Organise result data
