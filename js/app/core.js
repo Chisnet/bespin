@@ -52,14 +52,14 @@ define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _,
 		refresh: function() {
 			// Attempt to get ES status
 			var that = this;
-			this.es_request('_status', null, function(data){
+			this.es_get('_status', function(data){
 				that.process_status_response(data);
 			});
 
 			// If we successfully get a good status request all other data and organise/render it
 			if(this.status == 'connected') {
 				var that = this;
-				this.es_request('_nodes', null, function(data){
+				this.es_get('_nodes', function(data){
 					if(typeof(data) != 'undefined') {
 						// Node response just goes straight into our local object
 						that.nodes = data.nodes;
@@ -68,7 +68,7 @@ define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _,
 						logger.error('Error retrieving nodes!');
 					}
 				});
-				this.es_request('_cluster/state', null, function(data){
+				this.es_get('_cluster/state', function(data){
 					that.process_cluster_response(data);
 				});
 				this.organize_data();
@@ -79,22 +79,42 @@ define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _,
 				signalbus.dispatch('cleanup');
 			}
 		},
-		es_request: function(path, params, callback) {
+		es_get: function(path, params, callback) {
+			// Handle missing args
+			if(callback == null) {
+				callback = params;
+				params = null;
+			}
+			// Build path
 			var request_path = this.server_url + path + '/';
-
-			// Add any query params if required
 			if(params != null && typeof(params) == 'object') {
 				params = $.param(params);
 				request_path += '?' + params;
 			}
+			// Send request
+			this.es_request('GET', request_path, null, callback);
+		},
+		es_post: function(path, data, callback) {
+			// Handle missing args
+			if(data == null) {
+				callback = data;
+				data = null;
+			}
+			// Build path
+			var request_path = this.server_url + path + '/';
+			// Send request
+			this.es_request('POST', null, data, callback);
+		},
+		es_request: function(request_type, request_path, request_data, callback) {
+			var ajax_object = {
+				async: false,
+				url: request_path,
+				type: request_type
+			};
 
 			logger.debug('Sending ES request: ' + request_path);
 			var that = this;
-			$.ajax({
-				async: false,
-				url: request_path,
-				type: 'GET'
-			}).done(function(data){
+			$.ajax(ajax_object).done(function(data){
 				logger.debug('Request successful, processing response...');
 				callback.call(that, data);
 			}).fail(function(){

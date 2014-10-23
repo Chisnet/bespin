@@ -124,7 +124,7 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             search_path += '/_search';
 
             var that = this;
-            core.es_request(search_path, params, function(data){
+            core.es_get(search_path, params, function(data){
                 if(typeof(data) != 'undefined') {
                     that.build_browser_results(data);
                 }
