@@ -42,9 +42,9 @@ define(["underscore"], function(_) {
         },
         browser: {
             filter: _.template(
-                '<div class="filter">\
-                    <label for="filter_<%= field_name %>"><%= field_name %></label>\
-                    <input type="text" id="filter_<%= field_name %>"/>\
+                '<div id="filter_<%= field_name %>" class="filter">\
+                    <label for="filter_<%= field_name %>_input"><%= field_name %></label>\
+                    <input type="text" id="filter_<%= field_name %>_input" data-filter="<%= field_name %>"/>\
                     <button type="button" class="remove_filter" data-filter="<%= field_name %>">-</button>\
                 </div>'
             )

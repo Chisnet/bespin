@@ -1,6 +1,8 @@
 define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], function($, _, logger, signalbus, core, templates) {
     var browser = {
         current_filters: [],
+        filter_timeout: 0,
+        type_intent_delay: 500,
 
         init: function() {
             // Bind events
@@ -43,6 +45,18 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
                     };
                     var output = templates.browser.filter(template_data);
                     $('#browser_filters').append(output);
+                    // Bind an event to the remove button
+                    $('#filter_' + filter_field + ' .remove_filter').bind('click', function(){
+                        var field_name = $(this).data('filter');
+                        that.remove_filter(field_name);
+                    });
+                    // Bind change event to the field
+                    $('#filter_' + filter_field + '_input').bind('change keyup', function() {
+                        clearTimeout(that.filter_timeout);
+                        that.filter_timeout = setTimeout(function(){
+                            that.browse();
+                        }, that.type_intent_delay);
+                    });
                 }
             });
         },
@@ -194,6 +208,13 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             _.each(headers, function(field){
                 $filters_dropdown.append('<option value="'+field+'">'+field+'</option>');
             });
+        },
+        remove_filter: function(field_name) {
+            $('#filter_' + field_name).remove();
+            var field_index = this.current_filters.indexOf(field_name);
+            if(field_index >= 0) {
+                this.current_filters.splice(field_index, 1);
+            }
         }
     };
     browser.init();
