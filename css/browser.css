@@ -10,6 +10,9 @@
     padding: 10px;
     width: 300px;
 }
+#content_browser_left label {
+    display: block;
+}
 #content_browser_left select {
     width: 300px;
     margin-top: 5px;

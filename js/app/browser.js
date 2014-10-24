@@ -1,6 +1,7 @@
 define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], function($, _, logger, signalbus, core, templates) {
     var browser = {
         current_filters: [],
+        filter_field_types: {},
         filter_timeout: 0,
         type_intent_delay: 500,
 
@@ -113,34 +114,19 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             var search_path;
             var index_name = $('#browser_indices').val().substr(6);
             var type_name = $('#browser_types').val();
-            var params = {
-                size: $('#browser_size').val()
-            };
+            var result_size = $('#browser_size').val();
 
+            // Build search path
             var search_path = index_name;
-
             if(type_name != '') {
                 search_path += '/' + type_name;
             }
             search_path += '/_search';
 
             // Build filter object (if required)
-            var valid_filters = 0;
-            var request_body = {};
-            if(this.current_filters.length > 0) {
-                request_body = {query:{bool:{must:[]}}};
-                _.each(this.current_filters, function(filter){
-                    var filter_value = $('#filter_' + filter + '_input').val().toLowerCase();
-                    if(filter_value != '') {
-                        var term = {};
-                        term[filter] = filter_value;
-                        request_body['query']['bool']['must'].push({term:term});
-                        valid_filters += 1;
-                    }
-                });
-            }
+            var request_body = this.build_filters(result_size);
 
-            if(valid_filters > 0) {
+            if(request_body) {
                 var request_data = JSON.stringify(request_body);
                 core.es_post(search_path, request_data, function(data){
                     if(typeof(data) != 'undefined') {
@@ -152,6 +138,9 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
                 });
             }
             else {
+                var params = {
+                    size: result_size
+                };
                 core.es_get(search_path, params, function(data){
                     if(typeof(data) != 'undefined') {
                         that.build_browser_results(data);
@@ -227,16 +216,77 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
                 });
                 $results_table.append($result_row);
             });
+            // Work out and store field data_type
+            this.store_field_types(headers);
+            // Update browser interface
             this.populate_filters_dropdown(headers);
         },
+        store_field_types: function(fields){
+            var that = this;
+            // Gather the data we'll need to look up types
+            var index_id = $('#browser_indices').val();
+            var index_type = index_id.substr(0,5);
+            var index_name = index_id.substr(6);
+            var indices = [];
+            if(index_type == 'index') {
+                indices.push(index_name);
+            } else {
+                indices = core.aliases[index_name];
+            }
+            // Clear the current values
+            this.filter_field_types = {};
+            // Add the default filters types
+            this.filter_field_types['_index'] = ['string'];
+            this.filter_field_types['_type'] = ['string'];
+            this.filter_field_types['_id'] = ['string'];   
+            // Look at the mappings to find the types (might vary between indices)
+            _.each(fields, function(field) {
+                var field_types = [];
+                _.each(indices, function(index){
+                    var mappings = core.indices[index].mappings;
+                    _.each(mappings, function(mapping_data, mapping_name){
+                        var properties = mapping_data.properties;
+                        if(_.has(properties, field)) {
+                            var property = properties[field];
+                            if(_.has(property, 'type')) {
+                                var field_type = property['type'];
+                                if(field_type == 'multi_field') {
+                                    field_type = property['fields'][field]['type'];
+                                }
+                                field_types.push(field_type);
+                            }
+                        }
+                    });
+                });
+                field_types = _.uniq(field_types);
+                that.filter_field_types[field] = field_types;
+            });
+        },
         populate_filters_dropdown: function(headers){
+            var that = this;
             // Populate filters dropdown
             var $filters_dropdown = $('#browser_filter');
             $filters_dropdown.empty();
             $filters_dropdown.append('<option value="">--</option>');
-            _.each(headers, function(field){
-                $filters_dropdown.append('<option value="'+field+'">'+field+'</option>');
+
+            _.each(headers, function(field_name){
+                var field_types = that.filter_field_types[field_name];
+                if(that.is_filterable(field_types)) {
+                    $filters_dropdown.append('<option value="'+field_name+'">'+field_name+'</option>');
+                }
             });
+        },
+        is_filterable: function(field_types) {
+            // Must have at leats one type
+            if(field_types.length == 0) {
+                return false;
+            }
+            // Can't be binary or token_count
+            if((_.indexOf(field_types, 'binary') > 0) || (_.indexOf(field_types, 'token_count') > 0)) {
+                return false;
+            }
+            // Otherwise it is filterable
+            return true;
         },
         remove_filter: function(field_name) {
             $('#filter_' + field_name).remove();
@@ -244,6 +294,55 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             if(field_index >= 0) {
                 this.current_filters.splice(field_index, 1);
             }
+            this.browse();
+        },
+        build_filters: function(result_size) {
+            var that = this;
+            var valid_filters = 0;
+            // Basic query filter structure
+            var request_body = {
+                query: {
+                    bool: {
+                        must: []
+                    }
+                },
+                size: result_size
+            };
+            // Build up the filters
+            if(this.current_filters.length > 0) {
+                _.each(this.current_filters, function(filter_name){
+                    var filter_value = $('#filter_' + filter_name + '_input').val().toLowerCase();
+                    if(filter_value != '') {
+                        var filter = that.build_filter(filter_name, filter_value);
+                        request_body['query']['bool']['must'] = _.union(request_body['query']['bool']['must'], filter);
+                        valid_filters += 1;
+                    }
+                });
+            }
+            // Only return something if there's at least one valid filter
+            if(valid_filters > 0) {
+                return request_body;
+            } else {
+                return false;
+            }
+        },
+        build_filter: function(filter_name, filter_value) {
+            var filters = [];
+            // If the only value type is string we can use a wildcard filter, otherwise term will have to do
+            if(_.difference(this.filter_field_types[filter_name], ['string']).length == 0) {
+                var values = _.compact(filter_value.trim().split(' '));
+                _.each(values, function(value) {
+                    var term = {};
+                    term[filter_name] = '*' + value + '*';
+                    filters.push({wildcard:term});
+                });
+            }
+            else {
+                var term = {};
+                term[filter_name] = filter_value;
+                filters.push({term:term});
+            }
+            return filters;
         }
     };
     browser.init();
