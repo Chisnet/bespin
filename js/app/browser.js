@@ -231,6 +231,8 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
 
                 core.es_get(document_path, function(data){
                     logger.info(JSON.stringify(data._source[result_field], undefined, 4));
+
+                    // http://jsfiddle.net/KJQ9K/670/
                 });
             });
         },
