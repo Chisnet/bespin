@@ -220,6 +220,19 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             this.store_field_types(headers);
             // Update browser interface
             this.populate_filters_dropdown(headers);
+            // Bind expander events
+            $('#browser_results .expander').bind('click', function(){
+                var result_index = $(this).data('index');
+                var result_type = $(this).data('type');
+                var result_id = $(this).data('id');
+                var result_field = $(this).data('field');
+
+                var document_path = '/' + result_index + '/' + result_type + '/' + result_id;
+
+                core.es_get(document_path, function(data){
+                    logger.info(JSON.stringify(data._source[result_field], undefined, 4));
+                });
+            });
         },
         store_field_types: function(fields){
             var that = this;
