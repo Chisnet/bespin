@@ -101,3 +101,32 @@
     position: relative;
     top: -1px;
 }
+
+#browser_popup {
+    display: none;
+    background: #333;
+    padding: 10px;
+    width: 400px;
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    margin: 0 0 0 -200px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.9);
+    color: #fff;
+}
+#browser_popup_close {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+#browser_popup_content {
+    margin-top: 20px;
+    max-height: 400px;
+    overflow: auto;
+}
+#browser_popup_content pre {
+    background-color: #666;
+    margin: 0;
+    padding: 5px;
+}

@@ -47,6 +47,12 @@ define(["underscore"], function(_) {
                     <input type="text" id="filter_<%= field_name %>_input" data-filter="<%= field_name %>"/>\
                     <button type="button" class="remove_filter" data-filter="<%= field_name %>">-</button>\
                 </div>'
+            ),
+            popup: _.template(
+                '<div id="browser_popup">\
+                    <div id="browser_popup_close">Close</div>\
+                    <div id="browser_popup_content"><%= content %></div>\
+                </div>'
             )
         }
     };

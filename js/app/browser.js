@@ -4,6 +4,7 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
         filter_field_types: {},
         filter_timeout: 0,
         type_intent_delay: 500,
+        truncation_point: 50,
 
         init: function() {
             // Bind events
@@ -152,6 +153,7 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
             }
         },
         build_browser_results: function(data) {
+            var that = this;
             // Organise result data
             var headers = [];
             var results = [];
@@ -190,8 +192,8 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
                         var value = result[field];
                         if(typeof value == 'string') {
                             var truncated = false;
-                            if(value.length > 50) {
-                                value = value.substr(0,50);
+                            if(['_id','_type','_index'].indexOf(field) == -1 && value.length > that.truncation_point) {
+                                value = value.substr(0,that.truncation_point);
                                 value += '...';
                                 truncated = true;
                             }
@@ -230,9 +232,10 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
                 var document_path = '/' + result_index + '/' + result_type + '/' + result_id;
 
                 core.es_get(document_path, function(data){
-                    logger.info(JSON.stringify(data._source[result_field], undefined, 4));
-
-                    // http://jsfiddle.net/KJQ9K/670/
+                    logger.info();
+                    // Syntax highlighting - http://jsfiddle.net/KJQ9K/670/
+                    var popup_content = '<pre>' + JSON.stringify(data._source[result_field], undefined, 4) + '</pre>';
+                    that.display_popup(popup_content);
                 });
             });
         },
@@ -358,6 +361,23 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
                 filters.push({term:term});
             }
             return filters;
+        },
+        display_popup: function(content) {
+            if($('#browser_popup').length) {
+                $('#browser_popup_content').html(content);
+                $('#browser_popup').show();
+            }
+            else {
+                var template_data = {
+                    content: content
+                };
+                var output = templates.browser.popup(template_data);
+                $('body').append(output);
+                $('#browser_popup').show();
+                $('#browser_popup_close').bind('click', function(){
+                    $('#browser_popup').hide();
+                });
+            }
         }
     };
     browser.init();
