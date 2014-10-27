@@ -234,7 +234,7 @@ define(["jquery", "underscore", "logger", "signalbus", "core", "templates"], fun
                 core.es_get(document_path, function(data){
                     logger.info();
                     // Syntax highlighting - http://jsfiddle.net/KJQ9K/670/
-                    var popup_content = '<pre>' + JSON.stringify(data._source[result_field], undefined, 4) + '</pre>';
+                    var popup_content = '<pre>' + _.escape(JSON.stringify(data._source[result_field], undefined, 4)) + '</pre>';
                     that.display_popup(popup_content);
                 });
             });
