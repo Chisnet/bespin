@@ -4,7 +4,8 @@ require.config({
     	jquery: '../lib/jquery',
     	underscore: '../lib/underscore',
     	cookie: '../lib/jquery.cookie',
-        signalbus: '../lib/signalbus'
+        signalbus: '../lib/signalbus',
+        pretty: '../lib/pretty'
     },
     shim: {
     	'underscore': {
