@@ -1,4 +1,4 @@
-define(["underscore"], function(_) {
+define(["lodash"], function(_) {
 	var templates = {
         alias_view: {
             alias: _.template(

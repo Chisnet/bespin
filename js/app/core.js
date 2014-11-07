@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "logger", "signalbus", "cookie"], function($, _, logger, signalbus) {
+define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, logger, signalbus) {
 	var core = {
 		status: 'disconnected',
 		server_url: '',

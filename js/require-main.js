@@ -2,15 +2,12 @@ require.config({
     baseUrl: 'js/app',
     paths: {
     	jquery: '../lib/jquery',
-    	underscore: '../lib/underscore',
+    	lodash: '../lib/lodash',
     	cookie: '../lib/jquery.cookie',
         signalbus: '../lib/signalbus',
         pretty: '../lib/pretty'
     },
     shim: {
-    	'underscore': {
-    		exports: '_'
-    	},
     	'cookie': ["jquery"]
     }
 });
