@@ -55,4 +55,4 @@ A simple text log, focusing on Bespin's interactions with your Elastic Search cl
 Contributing
 ------------
 
-Bespin is still in the fairly early stages of development, so until the structure of the project is cemented ontributions will probably not be accepted, but reporting of any issues is encouraged. 
+Bespin is still in the fairly early stages of development, so until the structure of the project is cemented contributions will probably not be accepted, but reporting of any issues is encouraged. 
