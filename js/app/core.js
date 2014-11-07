@@ -41,6 +41,10 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
 			});
 		},
 		connect: function(url) {
+			// Add a trailing slash if one isn't entered
+			if(!/\/$/.test(url)) {
+				url = url + '/';
+			}
 			logger.info('Connecting to '+url+'...');
 			$('#connectionStatus').removeClass().addClass('unknown').text('Connecting...');
 			this.status = 'connecting';

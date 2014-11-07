@@ -229,7 +229,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 var result_id = $(this).data('id');
                 var result_field = $(this).data('field');
 
-                var document_path = '/' + result_index + '/' + result_type + '/' + result_id;
+                var document_path = result_index + '/' + result_type + '/' + result_id;
 
                 core.es_get(document_path, function(data){
                     var popup_content = pretty.parse(data._source[result_field], 'json');
