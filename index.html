@@ -30,15 +30,19 @@
 				<div id="tab_log" data-content="log" class="tab">Log</div>
 			</div>
 			<div id="navRight">
-				<div id="viewSelect">
+				<div id="nav_overview" class="active">
 					<label for="view_type">View: </label>
 					<select id="view_type">
 						<option value="alias" selected="selected">Aliases</option>
 						<option value="vertical">Vertical Grid</option>
 						<!-- <option value="horizontal">Horizontal Grid</option> -->
 					</select>
-					<button type="button" id="refresh_button">Refresh</button>
+					<button type="button" id="overview_refresh">Refresh</button>
 				</div>
+				<div id="nav_browser">
+					<button type="button" id="browser_refresh">Refresh</button>
+				</div>
+				<div id="nav_log"></div>
 			</div>
 		</div>
 		<!-- Content -->

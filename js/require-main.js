@@ -13,7 +13,6 @@ require.config({
 });
 
 require([
-    'core',
     'overview',
     'browser'
 ]);

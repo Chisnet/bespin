@@ -31,13 +31,17 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
 				var connectionURL = $('#connectionURL').val();
 				that.connect(connectionURL);
 			});
-			$('#refresh_button').bind('click', function() {
+			$('#overview_refresh').bind('click', function() {
 				that.refresh();
+			});
+			$('#browser_refresh').bind('click', function() {
+				signalbus.dispatch('browse');
 			});
 			$('.tab').bind('click', function() {
 				var content_type = $(this).data('content');
 				$(this).addClass('active').siblings().removeClass('active');
 				$('#content_'+content_type).addClass('active').siblings().removeClass('active');
+				$('#nav_'+content_type).addClass('active').siblings().removeClass('active');
 			});
 		},
 		connect: function(url) {

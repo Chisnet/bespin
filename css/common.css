@@ -50,6 +50,7 @@ button {
 	border-bottom: 1px solid #999;
 	min-width: 800px;
 	overflow: auto;
+	min-height: 31px;
 }
 #navRight {
 	float: right;
@@ -85,10 +86,12 @@ button {
 .tab.active {
 	background-color: #28d;
 }
-#content > div {
+#content > div,
+#navRight > div {
 	display: none;
 }
-#content > div.active {
+#content > div.active,
+#navRight > div.active {
 	display: block;
 }
 

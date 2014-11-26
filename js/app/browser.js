@@ -14,6 +14,9 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             signalbus.listen('refresh', function(){
                 that.build_index_browser();
             });
+            signalbus.listen('browse', function(){
+                that.browse();
+            });
             this.build_index_browser();
         },
         bind_events: function() {
