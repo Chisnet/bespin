@@ -5,6 +5,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
         filter_timeout: 0,
         type_intent_delay: 500,
         truncation_point: 50,
+        current_page: 1,
 
         init: function() {
             // Bind events
@@ -64,6 +65,16 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                     });
                 }
             });
+            $('#browser_page_prev').bind('click', function() {
+                var page = that.current_page > 1 ? that.current_page-1 : 1;
+                that.current_page = page;
+                that.browse(page);
+            });
+            $('#browser_page_next').bind('click', function() {
+                var page = that.current_page + 1;
+                that.current_page = page;
+                that.browse(page);
+            });
         },
         build_index_browser: function() {
             var $index_dropdown = $('#browser_indices');
@@ -113,7 +124,8 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 });
             }
         },
-        browse: function() {
+        browse: function(page) {
+            if(typeof(page) == 'undefined'){page=1; this.current_page=1;}
             var that = this;
             var search_path;
             var index_name = $('#browser_indices').val().substr(6);
@@ -127,14 +139,18 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             }
             search_path += '/_search';
 
-            // Build filter object (if required)
-            var request_body = this.build_filters(result_size);
+            // Handle pagination
+            var from = (page - 1) * result_size;
 
+            // Build filter object (if required)
+            var request_body = this.build_filters(result_size, from);
+
+            // Make request
             if(request_body) {
                 var request_data = JSON.stringify(request_body);
                 core.es_post(search_path, request_data, function(data){
                     if(typeof(data) != 'undefined') {
-                        that.build_browser_results(data);
+                        that.build_browser_results(data, result_size);
                     }
                     else {
                         logger.error('Error performing search!');
@@ -143,11 +159,12 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             }
             else {
                 var params = {
-                    size: result_size
+                    size: result_size,
+                    from: from
                 };
                 core.es_get(search_path, params, function(data){
                     if(typeof(data) != 'undefined') {
-                        that.build_browser_results(data);
+                        that.build_browser_results(data, result_size);
                     }
                     else {
                         logger.error('Error performing search!');
@@ -155,11 +172,13 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 });
             }
         },
-        build_browser_results: function(data) {
+        build_browser_results: function(data, result_size) {
             var that = this;
             // Organise result data
             var headers = [];
             var results = [];
+            var result_count = data.hits.hits.length;
+            var total_count = data.hits.total;
             _.each(data.hits.hits, function(hit){
                 var result = {};
                 result._index = hit._index;
@@ -179,8 +198,24 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             headers = _.union(['_index', '_type', '_id'], headers);
 
             // Display result data
+            var range_start = (this.current_page-1) * result_size + 1;
+            var range_end = range_start + result_count - 1;
+            $('#browser_results_info').text('Displaying results ' + range_start + ' - ' + range_end + ' of ' + total_count);
+            $('#browser_results_nav').show();
             var $results_table = $('#browser_results');
-            $results_table.empty();
+            $results_table.empty().show();
+            // Update pagination
+            if(this.current_page == 1) {
+                $('#browser_page_prev').prop('disabled', true);
+            } else {
+                $('#browser_page_prev').prop('disabled', false);
+            }
+            if(total_count <= range_end) {
+                $('#browser_page_next').prop('disabled', true);
+            } else {
+                $('#browser_page_next').prop('disabled', false);
+            }
+
             // Header
             var $header_row = $('<tr></tr>');
             _.each(headers, function(header){
@@ -315,7 +350,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             }
             this.browse();
         },
-        build_filters: function(result_size) {
+        build_filters: function(result_size, from) {
             var that = this;
             var valid_filters = 0;
             // Basic query filter structure
@@ -325,7 +360,8 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                         must: []
                     }
                 },
-                size: result_size
+                size: result_size,
+                from: from
             };
             // Build up the filters
             if(this.current_filters.length > 0) {

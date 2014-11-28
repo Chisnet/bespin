@@ -10,6 +10,10 @@ button {
     border-radius: 2px;
     color: #fff;
 }
+button:disabled {
+	background-color: #9bd;
+	border-color: #8ad;
+}
 
 /* Header */
 #header {
