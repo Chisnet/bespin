@@ -1,106 +1,106 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8"/>
-		<title>BESPIn - The Basic Elastic Search PlugIn</title>
-		<!-- Styles -->
-		<link rel="stylesheet" href="css/normalize.css"/>
-		<link rel="stylesheet" href="css/common.css"/>
-		<link rel="stylesheet" href="css/overview.css"/>
-		<link rel="stylesheet" href="css/browser.css"/>
-		<link rel="stylesheet" href="css/logger.css"/>
-	</head>
-	<body>
-		<!-- Header -->
-		<div id="header">
-			<div id="branding">
-				<img src="img/logo.gif" alt="Bespin"/>
-			</div>
-			<div id="connectionBox">
-				<input type="text" id="connectionURL" placeholder="Enter the Elastic Search server address here..." value="http://localhost:9200/"/>
-				<button type="button" id="connection_button">Connect</button>
-			</div>
-			<div class="status"><span class="title">Status:</span> <span id="connectionStatus" class="unknown">Disconnected</span></div>
-		</div>
-		<!-- Navigation -->
-		<div id="nav">
-			<div id="tabs">
-				<div id="tab_overview" data-content="overview" class="tab active">Overview</div>
-				<div id="tab_browser" data-content="browser" class="tab">Browser</div>
-				<div id="tab_log" data-content="log" class="tab">Log</div>
-			</div>
-			<div id="navRight">
-				<div id="nav_overview" class="active">
-					<label for="view_type">View: </label>
-					<select id="view_type">
-						<option value="alias" selected="selected">Aliases</option>
-						<option value="vertical">Vertical Grid</option>
-						<!-- <option value="horizontal">Horizontal Grid</option> -->
-					</select>
-					<button type="button" id="overview_refresh">Refresh</button>
-				</div>
-				<div id="nav_browser">
-					<button type="button" id="browser_refresh">Refresh</button>
-				</div>
-				<div id="nav_log"></div>
-			</div>
-		</div>
-		<!-- Content -->
-		<div id="content">
-			<div id="content_overview" class="active"></div>
-			<div id="content_browser">
-				<div id="content_browser_left">
-					<div class="browser_group">
-						<div class="browser_option">
-							<label for="browser_indices">Select an alias or index to browse:</label>
-							<select id="browser_indices">
-								<option value="">--</option>
-							</select>
-						</div>
-						<div class="browser_option">
-							<label for="browser_types">Select a type to filter the search on:</label>
-							<select id="browser_types">
-								<option value="">--</option>
-							</select>
-						</div>
-						<div class="browser_option">
-							<label for="browser_size">Select the number of results to return:</label>
-							<select id="browser_size">
-								<option value="10">10</option>
-								<option value="25" selected>25</option>
-								<option value="50">50</option>
-							</select>
-						</div>
-					</div>
-					<div class="browser_group">
-						<div class="browser_option">
-							<label for="browser_filter">Select a field to filter on:</label>
-							<select id="browser_filter">
-								<option value="">--</option>
-							</select>
-							<button type="button" id="add_filter_button">+</button>
-						</div>
-						<div id="browser_filters"></div>
-					</div>
-				</div>
-				<div id="content_browser_right">
-					<div id="browser_results_nav">
-						<span id="browser_results_info"></span>
-						<div class="buttons">
-							<button type="button" id="browser_page_prev" disabled>&lt;</button>
-							<button type="button" id="browser_page_next" disabled>&gt;</button>
-						</div>
-					</div>
-					<div id="content_browser_right_inner">
-						<table id="browser_results"></table>
-					</div>
-				</div>
-			</div>
-			<div id="content_log">
-				<div id="content_log_messages"></div>
-			</div>
-		</div>
-		<!-- Scripts -->
+    <head>
+        <meta charset="utf-8"/>
+        <title>BESPIn - The Basic Elastic Search PlugIn</title>
+        <!-- Styles -->
+        <link rel="stylesheet" href="css/normalize.css"/>
+        <link rel="stylesheet" href="css/common.css"/>
+        <link rel="stylesheet" href="css/overview.css"/>
+        <link rel="stylesheet" href="css/browser.css"/>
+        <link rel="stylesheet" href="css/logger.css"/>
+    </head>
+    <body>
+        <!-- Header -->
+        <div id="header">
+            <div id="branding">
+                <img src="img/logo.gif" alt="Bespin"/>
+            </div>
+            <div id="connectionBox">
+                <input type="text" id="connectionURL" placeholder="Enter the Elastic Search server address here..." value="http://localhost:9200/"/>
+                <button type="button" id="connection_button">Connect</button>
+            </div>
+            <div class="status"><span class="title">Status:</span> <span id="connectionStatus" class="unknown">Disconnected</span></div>
+        </div>
+        <!-- Navigation -->
+        <div id="nav">
+            <div id="tabs">
+                <div id="tab_overview" data-content="overview" class="tab active">Overview</div>
+                <div id="tab_browser" data-content="browser" class="tab">Browser</div>
+                <div id="tab_log" data-content="log" class="tab">Log</div>
+            </div>
+            <div id="navRight">
+                <div id="nav_overview" class="active">
+                    <label for="view_type">View: </label>
+                    <select id="view_type">
+                        <option value="alias" selected="selected">Aliases</option>
+                        <option value="vertical">Vertical Grid</option>
+                        <!-- <option value="horizontal">Horizontal Grid</option> -->
+                    </select>
+                    <button type="button" id="overview_refresh">Refresh</button>
+                </div>
+                <div id="nav_browser">
+                    <button type="button" id="browser_refresh">Refresh</button>
+                </div>
+                <div id="nav_log"></div>
+            </div>
+        </div>
+        <!-- Content -->
+        <div id="content">
+            <div id="content_overview" class="active"></div>
+            <div id="content_browser">
+                <div id="content_browser_left">
+                    <div class="browser_group">
+                        <div class="browser_option">
+                            <label for="browser_indices">Select an alias or index to browse:</label>
+                            <select id="browser_indices">
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                        <div class="browser_option">
+                            <label for="browser_types">Select a type to filter the search on:</label>
+                            <select id="browser_types">
+                                <option value="">--</option>
+                            </select>
+                        </div>
+                        <div class="browser_option">
+                            <label for="browser_size">Select the number of results to return:</label>
+                            <select id="browser_size">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="browser_group">
+                        <div class="browser_option">
+                            <label for="browser_filter">Select a field to filter on:</label>
+                            <select id="browser_filter">
+                                <option value="">--</option>
+                            </select>
+                            <button type="button" id="add_filter_button">+</button>
+                        </div>
+                        <div id="browser_filters"></div>
+                    </div>
+                </div>
+                <div id="content_browser_right">
+                    <div id="browser_results_nav">
+                        <span id="browser_results_info"></span>
+                        <div class="buttons">
+                            <button type="button" id="browser_page_prev" disabled>&lt;</button>
+                            <button type="button" id="browser_page_next" disabled>&gt;</button>
+                        </div>
+                    </div>
+                    <div id="content_browser_right_inner">
+                        <table id="browser_results"></table>
+                    </div>
+                </div>
+            </div>
+            <div id="content_log">
+                <div id="content_log_messages"></div>
+            </div>
+        </div>
+        <!-- Scripts -->
         <script data-main="js/require-main" src="js/lib/require.js"></script>
-	</body>
+    </body>
 </html>

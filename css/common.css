@@ -1,8 +1,8 @@
 /* Base */
 body {
-	background: #eee;
-	font-family: Arial, sans-serif;
-	font-size: 12px;
+    background: #eee;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
 }
 button {
     background-color: #28d;
@@ -11,72 +11,72 @@ button {
     color: #fff;
 }
 button:disabled {
-	background-color: #9bd;
-	border-color: #8ad;
+    background-color: #9bd;
+    border-color: #8ad;
 }
 
 /* Header */
 #header {
-	height: 25px;
-	padding: 5px;
-	border-bottom: 1px solid #999;
-	min-width: 800px;
+    height: 25px;
+    padding: 5px;
+    border-bottom: 1px solid #999;
+    min-width: 800px;
 }
 #branding {
-	float: left;
-	margin-right: 5px;
+    float: left;
+    margin-right: 5px;
 }
 #connectionBox {
-	float: left;
+    float: left;
 }
 #connectionBox input {
-	height: 17px;
-	padding: 3px;
-	border: 1px solid #ccc;
-	width: 350px;
+    height: 17px;
+    padding: 3px;
+    border: 1px solid #ccc;
+    width: 350px;
 }
 #connectionBox button {
-	height: 23px;
-	width: 75px;
+    height: 23px;
+    width: 75px;
 }
 #header .status {
-	float: left;
-	line-height: 25px;
-	font-size: 14px;
-	padding-left: 10px;
-	font-weight: bold;
+    float: left;
+    line-height: 25px;
+    font-size: 14px;
+    padding-left: 10px;
+    font-weight: bold;
 }
 
 /* Navigation */
 #nav {
-	position: relative;
-	background: #ccc;
-	border-bottom: 1px solid #999;
-	min-width: 800px;
-	overflow: auto;
-	min-height: 31px;
+    position: relative;
+    background: #ccc;
+    border-bottom: 1px solid #999;
+    min-width: 800px;
+    overflow: auto;
+    min-height: 31px;
 }
 #navRight {
-	float: right;
-	padding: 5px 10px;
+    float: right;
+    padding: 5px 10px;
 }
 #nav select {
-	height: 20px;
+    height: 20px;
 }
 #nav button {
-	height: 20px;
+    height: 20px;
 }
 
 /* Tabs */
 #tabs {
-	position: absolute;
-	bottom: 0px;
-	left: 0px;
-	margin-left: 10px;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    margin-left: 10px;
 }
 .tab {
-	float: left;
-	background-color: #9bd;
+    float: left;
+    background-color: #9bd;
     border-radius: 3px 3px 0 0;
     color: #fff;
     font-weight: bold;
@@ -85,30 +85,30 @@ button:disabled {
     cursor: pointer;
 }
 .tab:last-child {
-	margin-right: 0px;
+    margin-right: 0px;
 }
 .tab.active {
-	background-color: #28d;
+    background-color: #28d;
 }
 #content > div,
 #navRight > div {
-	display: none;
+    display: none;
 }
 #content > div.active,
 #navRight > div.active {
-	display: block;
+    display: block;
 }
 
 /* States */
 .error {
-	color: #cc0000;
+    color: #cc0000;
 }
 .warning {
-	color: #cc9900;
+    color: #cc9900;
 }
 .ok {
-	color: #00aa00;
+    color: #00aa00;
 }
 .unknown {
-	color: #aaaaaa;
+    color: #aaaaaa;
 }

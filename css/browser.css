@@ -1,11 +1,11 @@
 #content_browser {
-	position: relative;
+    position: relative;
 }
 /* Left Section */
 #content_browser_left {
-	position: absolute;
-	top: 0px;
-	left: 0px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
     background-color: #ddd;
     padding: 10px;
     width: 300px;
@@ -27,12 +27,12 @@
     text-indent: 10px;
 }
 #content_browser_left .browser_group {
-	border-top: 1px solid #aaa;
-	padding-top: 10px;
+    border-top: 1px solid #aaa;
+    padding-top: 10px;
 }
 #content_browser_left .browser_group:first-child {
-	border: none;
-	padding-top: 0px;
+    border: none;
+    padding-top: 0px;
 }
 #content_browser_left .browser_option {
     margin-bottom: 10px;
@@ -76,7 +76,7 @@
     display: none;
 }
 #content_browser_right {
-	margin: 0px 10px 10px 330px;
+    margin: 0px 10px 10px 330px;
     padding-top: 10px;
 }
 #content_browser_right_inner {
@@ -84,20 +84,20 @@
 }
 #content_browser_right_inner th,
 #content_browser_right_inner td {
-	padding: 5px 10px;
-	border: 1px solid #aaa;
+    padding: 5px 10px;
+    border: 1px solid #aaa;
 }
 #content_browser_right_inner th {
-	color: #fff;
-	background: #999;
-	background: linear-gradient(to bottom, rgba(100,100,100,1) 0%,rgba(150,150,150,1) 100%);
-	text-align: left;
+    color: #fff;
+    background: #999;
+    background: linear-gradient(to bottom, rgba(100,100,100,1) 0%,rgba(150,150,150,1) 100%);
+    text-align: left;
 }
 #content_browser_right_inner td {
-	white-space: nowrap;
+    white-space: nowrap;
 }
 #content_browser_right_inner tr:nth-child(even) {
-	background-color: #fff;
+    background-color: #fff;
 }
 #content_browser_right_inner td.empty {
     background-color: #ccc;
