@@ -14,5 +14,6 @@ require.config({
 
 require([
     'overview',
-    'browser'
+    'browser',
+    'raw'
 ]);

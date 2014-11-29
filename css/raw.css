@@ -1,0 +1,17 @@
+#content_raw {
+    position: relative;
+}
+/* Left Section */
+#content_raw_left {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: #ddd;
+    padding: 10px;
+    width: 300px;
+}
+/* Right Section */
+#content_raw_right {
+    background-color: #232323;
+    margin-left: 320px;
+}
