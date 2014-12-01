@@ -1,117 +1,117 @@
 /* Boxes */
 #content_overview.alias_view .index,
 #content_overview.alias_view .alias {
-	float: left;
-	margin: 10px 0 0 10px;
-	min-height: 100px;
-	border-radius: 5px;
-	border: 1px solid #999;
+    float: left;
+    margin: 10px 0 0 10px;
+    min-height: 100px;
+    border-radius: 5px;
+    border: 1px solid #999;
 }
 #content_overview.alias_view .index {
-	background: #aad;
-	min-width: 200px;
-	cursor: pointer;
+    background: #aad;
+    min-width: 200px;
+    cursor: pointer;
 }
 #content_overview.alias_view .alias {
-	background: #ada;
-	min-width: 300px;
-	padding-bottom: 10px;
+    background: #ada;
+    min-width: 300px;
+    padding-bottom: 10px;
 }
 
 /* Box Titles and Info */
 #content_overview.alias_view .index .name,
 #content_overview.alias_view .alias > .name {
-	font-size: 14px;
-	text-align: center;
-	padding: 5px;
+    font-size: 14px;
+    text-align: center;
+    padding: 5px;
 }
 #content_overview.alias_view .index .name {
-	border-bottom: 1px solid #77a;
+    border-bottom: 1px solid #77a;
 }
 #content_overview.alias_view .alias > .name {
-	border-bottom: 1px solid #7a7;
+    border-bottom: 1px solid #7a7;
 }
 #content_overview.alias_view .index .info {
-	padding: 10px 10px 0;
-	color: #555;
+    padding: 10px 10px 0;
+    color: #555;
 }
 
 /* Hover highlighting for matching indices in alias view */
 #content_overview.alias_view .index.highlight {
-	background: #daa;
+    background: #daa;
 }
 #content_overview.alias_view .index.highlight .name {
-	border-bottom: 1px solid #a77;
+    border-bottom: 1px solid #a77;
 }
 
 /* Inner Box Overrides */
 #content_overview.alias_view .alias .inner {
-	padding: 10px;
+    padding: 10px;
 }
 #content_overview.alias_view .alias .inner .index {
-	width: 100%;
-	min-height: 55px;
-	float: left;
-	clear: left;
-	margin-left: 0;
+    width: 100%;
+    min-height: 55px;
+    float: left;
+    clear: left;
+    margin-left: 0;
 }
 #content_overview.alias_view .alias .inner .index:first-child {
-	margin-top: 0;
+    margin-top: 0;
 }
 #content_overview.alias_view .alias .inner .index .info {
-	float: left;
-	width: 120px;
-	padding: 6px 10px;
+    float: left;
+    width: 120px;
+    padding: 6px 10px;
 }
 
 /* Table View */
 #content_overview.vertical_view table {
-	border-collapse: collapse;
+    border-collapse: collapse;
 }
 #content_overview.vertical_view th {
-	min-width: 200px;
-	padding: 10px;
+    min-width: 200px;
+    padding: 10px;
 }
 #content_overview.vertical_view th,
 #content_overview.vertical_view td {
-	padding: 10px;
-	border: 1px solid #ccc;
+    padding: 10px;
+    border: 1px solid #ccc;
 }
 #content_overview.vertical_view tr:nth-child(even) {
-	background: #ddd;
+    background: #ddd;
 }
 #content_overview.vertical_view .node {
-	text-align: left;
+    text-align: left;
 }
 #content_overview.vertical_view .node .name {
-	font-size: 18px;
-	white-space: nowrap;
+    font-size: 18px;
+    white-space: nowrap;
 }
 #content_overview.vertical_view .node .hostname {
-	font-weight: normal;
+    font-weight: normal;
 }
 #content_overview.vertical_view .index {
-	text-align: left;
+    text-align: left;
 }
 #content_overview.vertical_view .index .name {
-	font-size: 18px;
+    font-size: 18px;
 }
 #content_overview.vertical_view .index .docs,
 #content_overview.vertical_view .index .size {
-	font-weight: normal;
+    font-weight: normal;
 }
 #content_overview.vertical_view .shards div {
-	float: left;
-	font-size: 20px;
-	padding: 5px;
-	border: 2px solid #77aa77;
-	background-color: #99cc99;
-	margin-right: 10px;
+    float: left;
+    font-size: 20px;
+    padding: 5px;
+    border: 2px solid #77aa77;
+    background-color: #99cc99;
+    margin-right: 10px;
 }
 #content_overview.vertical_view .shards div:last-child {
-	margin-right: 0px;
+    margin-right: 0px;
 }
 #content_overview.vertical_view .shards div.unassigned {
-	border-color: #999999;
-	background-color: #bbbbbb;
+    border-color: #999999;
+    background-color: #bbbbbb;
 }

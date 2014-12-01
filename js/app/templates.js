@@ -1,5 +1,5 @@
 define(["lodash"], function(_) {
-	var templates = {
+    var templates = {
         alias_view: {
             alias: _.template(
                 '<div class="alias">\
