@@ -101,7 +101,21 @@
             </div>
             <div id="content_raw">
                 <div id="content_raw_left">
-
+                    <div>
+                        <select id="raw_method">
+                            <option value="get" selected>GET</option>
+                            <option value="post">POST</option>
+                            <option value="put">PUT</option>
+                            <option value="delete">DELETE</option>
+                        </select>
+                        <input id="raw_path" value="_search"/>
+                    </div>
+                    <div>
+                        <textarea id="raw_data"></textarea>
+                    </div>
+                    <div>
+                        <button type="button" id="raw_request">Request</button>
+                    </div>
                 </div>
                 <div id="content_raw_right">
 

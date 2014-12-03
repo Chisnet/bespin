@@ -10,6 +10,26 @@
     padding: 10px;
     width: 300px;
 }
+#raw_method {
+    position: relative;
+    top: 1px;
+}
+#raw_path {
+    float: right;
+    height: 12px;
+    width: 200px;
+}
+#raw_data {
+    margin: 10px 0;
+    resize: none;
+    width: 294px;
+    height: 500px;
+    border: 1px solid #aaa;
+    padding: 2px;
+}
+#raw_request {
+    float: right;
+}
 /* Right Section */
 #content_raw_right {
     background-color: #232323;
