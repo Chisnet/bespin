@@ -1,14 +1,13 @@
 #content_raw {
-    position: relative;
+    height: 100%;
 }
 /* Left Section */
 #content_raw_left {
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    float: left;
     background-color: #ddd;
     padding: 10px;
-    width: 300px;
+    width: 400px;
+    height: 100%;
 }
 #raw_method {
     position: relative;
@@ -17,12 +16,12 @@
 #raw_path {
     float: right;
     height: 12px;
-    width: 200px;
+    width: 300px;
 }
 #raw_data {
     margin: 10px 0;
     resize: none;
-    width: 294px;
+    width: 394px;
     height: 500px;
     border: 1px solid #aaa;
     padding: 2px;
@@ -32,6 +31,17 @@
 }
 /* Right Section */
 #content_raw_right {
+    margin-left: 420px;
     background-color: #232323;
-    margin-left: 320px;
+    padding: 10px;
+    height: 100%;
+    color: #eee;
+    overflow: auto;
+}
+#content_raw_right .error {
+    font-family: monospace;
+    font-size: 13px;
+}
+#content_raw_right .pretty_output {
+    padding-bottom: 10px;
 }

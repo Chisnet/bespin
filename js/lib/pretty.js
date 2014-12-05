@@ -30,6 +30,10 @@
             }
         },
         parse_json: function(data) {
+            // Attempt a load so we can handle Objects and Strings
+            try {data = JSON.parse(data);}
+            catch(e) {}
+
             var result = '';
             // Find the type of JSON data we've been given
             var value_type = data == null ? 'null' : data.constructor.name.toLowerCase();

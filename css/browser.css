@@ -130,7 +130,7 @@
     left: 50%;
     margin: 0 0 0 -310px;
     box-shadow: 0 0 5px rgba(0,0,0,0.9);
-    color: #fff;
+    color: #eee;
 }
 #browser_popup_close {
     cursor: pointer;
@@ -148,34 +148,4 @@
     margin: 0;
     padding: 5px;
     white-space: pre-wrap;
-}
-
-/* Pretty - General Styles */
-.pretty_output {
-    font-family: monospace;
-    font-size: 13px;
-}
-.pretty_output ul {
-    margin: 0;
-    padding-left: 30px;
-}
-.pretty_output li {
-    list-style: none;
-}
-
-/* Pretty - JSON Styles */
-.pretty_json .key {
-    font-weight: bold;
-}
-.pretty_json .string {
-    color: #33cc33;
-}
-.pretty_json .number {
-    color: #6666ff;
-}
-.pretty_json .boolean {
-    color: #999999;
-}
-.pretty_json .null {
-    color: #ff66ff;
 }

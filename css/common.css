@@ -1,4 +1,7 @@
 /* Base */
+html, body {
+    height: 100%;
+}
 body {
     background: #eee;
     font-family: Arial, sans-serif;
@@ -97,6 +100,33 @@ button:disabled {
 #content > div.active,
 #navRight > div.active {
     display: block;
+}
+
+/* Pretty - General Styles */
+.pretty_output {
+    font-family: monospace;
+    font-size: 12px;
+}
+.pretty_output ul {
+    margin: 0;
+    padding-left: 30px;
+}
+.pretty_output li {
+    list-style: none;
+}
+
+/* Pretty - JSON Styles */
+.pretty_json .string {
+    color: #33cc33;
+}
+.pretty_json .number {
+    color: #6666ff;
+}
+.pretty_json .boolean {
+    color: #999999;
+}
+.pretty_json .null {
+    color: #ff66ff;
 }
 
 /* States */

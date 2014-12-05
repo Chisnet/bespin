@@ -94,7 +94,7 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
                 params = null;
             }
             // Build path
-            var request_path = this.server_url + path + '/';
+            var request_path = path + '/';
             if(params != null && typeof(params) == 'object') {
                 params = $.param(params);
                 request_path += '?' + params;
@@ -109,11 +109,13 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
                 data = null;
             }
             // Build path
-            var request_path = this.server_url + path + '/';
+            var request_path = path + '/';
             // Send request
             this.es_request('POST', request_path, data, callback);
         },
         es_request: function(request_type, request_path, request_data, callback) {
+            // Add server URL to the request_path;
+            request_path = this.server_url + request_path;
             // Build request
             var ajax_object = {
                 async: false,
@@ -129,9 +131,9 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
             $.ajax(ajax_object).done(function(data){
                 logger.debug('Request successful, processing response...');
                 callback.call(that, data);
-            }).fail(function(){
+            }).fail(function(error){
                 logger.error('Request failed!');
-                callback.call(that);
+                callback.call(that, undefined, error.responseText);
             });
         },
         process_status_response: function(data) {
