@@ -26,7 +26,7 @@ define(['jquery', 'core', 'pretty'], function($, core, pretty) {
 
             var request_method = $('#raw_method').val().toUpperCase();
             var request_path = $('#raw_path').val();
-            var request_data = $('#raw_data')[0].innerHTML;
+            var request_data = $('#raw_data').val();
 
             // Clean the request data
             request_data = $('<div>').html(pretty.parse(request_data, 'json')).text();
