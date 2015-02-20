@@ -178,14 +178,24 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
                     else {
                         aliases['NONE'].push(index_name);
                     }
-                    // Mappings are ncie and clean and go straight into our object
-                    that.indices[index_name].mappings = index_obj.mappings;
+                    // Mappings are nice and clean and go straight into our object
+                    if(that.indices[index_name]) {
+                        that.indices[index_name].mappings = index_obj.mappings;
+                    }
+                    else {
+                        logger.warn('Mappings provided for non-existent index: ' + index_name);
+                    }
                 });
                 this.aliases = aliases;
 
                 // Extract shard information
                 _.each(data.routing_table.indices, function(routing, index){
-                    that.indices[index].shards = routing.shards;
+                    if(that.indices[index]) {
+                        that.indices[index].shards = routing.shards;
+                    }
+                    else {
+                        logger.warn('Shards provided for non-existent index: ' + index);
+                    }
                 });
             }
             else {
