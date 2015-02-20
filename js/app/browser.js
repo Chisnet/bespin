@@ -6,6 +6,8 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
         type_intent_delay: 500,
         truncation_point: 50,
         current_page: 1,
+        sort_field: '',
+        sort_order: 'asc',
 
         init: function() {
             // Bind events
@@ -124,8 +126,16 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 });
             }
         },
-        browse: function(page) {
+        browse: function(page, use_sort) {
+            if(typeof(use_sort) == 'undefined'){use_sort=false;}
+            if(typeof(page) == 'boolean'){use_sort=page; page=undefined;}
             if(typeof(page) == 'undefined'){page=1; this.current_page=1;}
+            if(!use_sort) {
+                // Reset the sort
+                this.sort_field = '';
+                this.sort_order = 'asc';
+            }
+
             var that = this;
             var search_path;
             var index_name = $('#browser_indices').val().substr(6);
@@ -143,7 +153,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             var from = (page - 1) * result_size;
 
             // Build filter object (if required)
-            var request_body = this.build_filters(result_size, from);
+            var request_body = this.build_filters(result_size, from, use_sort);
 
             // Make request
             if(request_body) {
@@ -216,10 +226,22 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 $('#browser_page_next').prop('disabled', false);
             }
 
+            // Work out and store field data_type
+            this.store_field_types(headers);
             // Header
             var $header_row = $('<tr></tr>');
-            _.each(headers, function(header){
-                $header_row.append('<th>'+header+'</th>');
+            _.each(headers, function(field_name){
+                var field_types = that.filter_field_types[field_name];
+                if(that.is_filterable(field_types)) {
+                    var sort_class = '';
+                    if(that.sort_field == field_name) {
+                        sort_class = ' ' + that.sort_order;
+                    }
+                    $header_row.append('<th class="sortable' + sort_class + '" data-field="' + field_name + '">' + field_name + '</th>');
+                }
+                else {
+                    $header_row.append('<th>' + field_name + '</th>');
+                }
             });
             $results_table.append($header_row);
             // Results
@@ -256,8 +278,6 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 });
                 $results_table.append($result_row);
             });
-            // Work out and store field data_type
-            this.store_field_types(headers);
             // Update browser interface
             this.populate_filters_dropdown(headers);
             // Bind expander events
@@ -274,6 +294,18 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                     that.display_popup(popup_content);
                 });
             });
+            // Bind sortable events
+            $('#browser_results th.sortable').bind('click', function(){
+                var sort_field = $(this).data('field');
+                if(that.sort_field != sort_field) {
+                    that.sort_order = 'asc';
+                }
+                else {
+                    that.sort_order = (that.sort_order == 'asc' ? 'desc' : 'asc');
+                }
+                that.sort_field = sort_field;
+                that.browse(true); // Passing true tells browse to use sorting, otherwise it will reset
+            });
         },
         store_field_types: function(fields){
             var that = this;
@@ -289,10 +321,6 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             }
             // Clear the current values
             this.filter_field_types = {};
-            // Add the default filters types
-            this.filter_field_types['_index'] = ['string'];
-            this.filter_field_types['_type'] = ['string'];
-            this.filter_field_types['_id'] = ['string'];   
             // Look at the mappings to find the types (might vary between indices)
             _.each(fields, function(field) {
                 var field_types = [];
@@ -315,6 +343,10 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 field_types = _.uniq(field_types);
                 that.filter_field_types[field] = field_types;
             });
+            // Set the default filters types
+            this.filter_field_types['_index'] = ['string'];
+            this.filter_field_types['_type'] = ['string'];
+            this.filter_field_types['_id'] = ['long'];   
         },
         populate_filters_dropdown: function(headers){
             var that = this;
@@ -350,18 +382,18 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             }
             this.browse();
         },
-        build_filters: function(result_size, from) {
+        build_filters: function(result_size, from, use_sort) {
             var that = this;
             var valid_filters = 0;
             // Basic query filter structure
             var request_body = {
-                query: {
-                    bool: {
-                        must: []
-                    }
-                },
                 size: result_size,
                 from: from
+            };
+            var query_body = {
+                bool: {
+                    must: []
+                }
             };
             // Build up the filters
             if(this.current_filters.length > 0) {
@@ -369,13 +401,26 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                     var filter_value = $('#filter_' + filter_name + '_input').val().toLowerCase();
                     if(filter_value != '') {
                         var filter = that.build_filter(filter_name, filter_value);
-                        request_body['query']['bool']['must'] = _.union(request_body['query']['bool']['must'], filter);
+                        query_body['bool']['must'] = _.union(query_body['bool']['must'], filter);
                         valid_filters += 1;
                     }
                 });
             }
+            // Add the sort if required
+            if(use_sort) {
+                var sort_field = that.sort_field;
+                var sort_order = that.sort_order;
+                if(sort_field == '_id'){sort_field = '_uid';}
+
+                var sort_body = {};
+                sort_body[sort_field] = sort_order;
+                request_body['sort'] = [sort_body];
+            }
             // Only return something if there's at least one valid filter
-            if(valid_filters > 0) {
+            if(valid_filters > 0 || use_sort) {
+                if(valid_filters > 0) {
+                    request_body['query'] = query_body;
+                }
                 return request_body;
             } else {
                 return false;
