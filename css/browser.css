@@ -38,7 +38,27 @@
     margin-bottom: 10px;
 }
 #content_browser_left #browser_filter {
-    width: 275px;
+    width: 270px;
+    margin-top: 5px;
+    padding: 2px;
+}
+#content_browser_left #browser_filter_options {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    display: none;
+}
+#content_browser_left #browser_filter_options li {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 2px;
+    width: 270px;
+    border-top: none;
+    cursor: pointer;
+}
+#content_browser_left #browser_filter_options li:hover {
+    background-color: #9bd;
 }
 #content_browser_left #add_filter_button {
     height: 21px;

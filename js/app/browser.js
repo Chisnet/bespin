@@ -66,6 +66,8 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                         }, that.type_intent_delay);
                     });
                 }
+                $('#browser_filter').val('');
+                $('#browser_filter_options').hide();
             });
             $('#browser_page_prev').bind('click', function() {
                 var page = that.current_page > 1 ? that.current_page-1 : 1;
@@ -76,6 +78,26 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 var page = that.current_page + 1;
                 that.current_page = page;
                 that.browse(page);
+            });
+            $('#browser_filter').bind('keyup', function() {
+                var filter_options = $('#browser_filter_options li');
+                $(filter_options).hide();
+                var matching_count = 0;
+                for(var i = 0; i < filter_options.length; i++){
+                    var $filter_option = $($(filter_options).eq(i));
+                    var filter_val = $filter_option.text().toLowerCase();
+                    var input_val = $(this).val().toLowerCase()
+                    if(filter_val.indexOf(input_val) === 0 && filter_val != input_val){
+                        $filter_option.show();
+                        matching_count += 1;
+                    }
+                }
+                if(matching_count == 0 || $(this).val().length == 0) {
+                    $('#browser_filter_options').hide();
+                }
+                else {
+                    $('#browser_filter_options').show();
+                }
             });
         },
         build_index_browser: function() {
@@ -366,18 +388,25 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
         },
         populate_filters_dropdown: function(headers){
             var that = this;
-            // Populate filters dropdown
-            var $filters_dropdown = $('#browser_filter');
-            $filters_dropdown.empty();
-            $filters_dropdown.append('<option value="">--</option>');
-
+            // Populate filter options
+            var $filter_options = $('#browser_filter_options');
+            $filter_options.empty();
             _.each(headers, function(field_name){
                 if(!_.includes(['_index', '_type'], field_name)) {
                     var field_types = that.filter_field_data[field_name]['types'];
                     if(that.is_filterable(field_types)) {
-                        $filters_dropdown.append('<option value="'+field_name+'">'+field_name+'</option>');
+                        $filter_options.append('<li>'+field_name+'</li>');
                     }
                 }
+            });
+
+            $filter_options.append('<li>test1</li>');
+            $filter_options.append('<li>test2</li>');
+            $filter_options.append('<li>test3</li>');
+
+            $('#browser_filter_options li').on('click', function(){
+                $('#browser_filter').val($(this).text());
+                $('#browser_filter_options').hide();
             });
         },
         is_filterable: function(field_types) {
