@@ -399,11 +399,6 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                     }
                 }
             });
-
-            $filter_options.append('<li>test1</li>');
-            $filter_options.append('<li>test2</li>');
-            $filter_options.append('<li>test3</li>');
-
             $('#browser_filter_options li').on('click', function(){
                 $('#browser_filter').val($(this).text());
                 $('#browser_filter_options').hide();
