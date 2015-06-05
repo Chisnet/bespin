@@ -513,6 +513,10 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                     $('#browser_popup').hide();
                 });
             }
+        },
+        switch_to_index: function(index_name) {
+            $('#browser_indices').val('index_'+index_name);
+            this.browse();
         }
     };
     browser.init();

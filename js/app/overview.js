@@ -1,4 +1,4 @@
-define(["jquery", "lodash", "logger", "signalbus", "core", "templates"], function($, _, logger, signalbus, core, templates) {
+define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "browser"], function($, _, logger, signalbus, core, templates, browser) {
     var overview = {
         view_type: 'alias',
         init: function() {
@@ -50,8 +50,11 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates"], functio
                                 };
                                 data.indices.push(index_data);
                             });
-                            var output = templates.alias_view.alias(data);
-                            $('#content_overview').append(output)
+                            var $output = $(templates.alias_view.alias(data));
+                            $output.find('div.index').bind('click', function(){
+                                that.jump_to_browser($(this).data('name'));
+                            });
+                            $('#content_overview').append($output)
                         }
                     });
                     _.each(core.alias_keys, function(alias){
@@ -62,8 +65,11 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates"], functio
                                 var index_data = {
                                     index: that.build_index_object(index_name)
                                 };
-                                var output = templates.alias_view.index(index_data);
-                                $('#content_overview').append(output);
+                                var $output = $(templates.alias_view.index(index_data));
+                                $output.bind('click', function(){
+                                    that.jump_to_browser($(this).data('name'));
+                                });
+                                $('#content_overview').append($output);
                             });
                         }
                     });
@@ -106,12 +112,15 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates"], functio
                         var $indexRow = $('<tr></tr>');
 
                         // Add the index name
-                        var output = templates.table_view.index({
+                        var $index_output = $(templates.table_view.index({
                             name: index_name,
                             docs: index.docs.num_docs,
                             size: index.index.primary_size || (index.index.primary_size_in_bytes + ' Bytes')
+                        }));
+                        $index_output.find('span.name').bind('click', function(){
+                            that.jump_to_browser($(this).data('name'));
                         });
-                        $indexRow.append(output);
+                        $indexRow.append($index_output);
 
                         // Assigned shards
                         _.each(core.node_keys, function(node){
@@ -160,6 +169,10 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates"], functio
                 docs: index_data ? index_data.docs.num_docs : 'unknown',
                 size: index_data ? index_data.index.primary_size : 'unknown',
             }
+        },
+        jump_to_browser: function(index_name) {
+            core.load_tab('browser');
+            browser.switch_to_index(index_name);
         }
     };
     overview.init();

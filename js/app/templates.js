@@ -34,7 +34,7 @@ define(["lodash"], function(_) {
             ),
             index: _.template(
                 '<th class="index">\
-                    <span class="name"><%= name %></span><br/>\
+                    <span class="name" data-name="<%= name %>"><%= name %></span><br/>\
                     <span class="info docs">Documents: <%= docs %></span><br/>\
                     <span class="info size">Size: <%= size %></span>\
                 </th>'

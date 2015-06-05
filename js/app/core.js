@@ -39,10 +39,13 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
             });
             $('.tab').bind('click', function() {
                 var content_type = $(this).data('content');
-                $(this).addClass('active').siblings().removeClass('active');
-                $('#content_'+content_type).addClass('active').siblings().removeClass('active');
-                $('#nav_'+content_type).addClass('active').siblings().removeClass('active');
+                that.load_tab(content_type);
             });
+        },
+        load_tab: function(content_type) {
+            $('#tab_'+content_type).addClass('active').siblings().removeClass('active');
+            $('#content_'+content_type).addClass('active').siblings().removeClass('active');
+            $('#nav_'+content_type).addClass('active').siblings().removeClass('active');
         },
         connect: function(url) {
             // Add a trailing slash if one isn't entered
