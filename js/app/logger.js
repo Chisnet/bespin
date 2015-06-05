@@ -1,21 +1,32 @@
-define(["jquery"], function($) {
+define(["jquery", "templates"], function($, templates) {
     var logger = {
         level: 'debug',
-        debug: function(msg) {
-            this.display_message('debug', msg);
+        debug: function(msg, data) {
+            this.display_message('debug', msg, data);
         },
-        info: function(msg) {
-            this.display_message('info', msg);
+        info: function(msg, data) {
+            this.display_message('info', msg, data);
         },
-        warn: function(msg) {
-            this.display_message('warn', msg);
+        warn: function(msg, data) {
+            this.display_message('warn', msg, data);
         },
-        error: function(msg) {
-            this.display_message('error', msg);
+        error: function(msg, data) {
+            this.display_message('error', msg, data);
         },
-        display_message: function(cls, msg) {
+        display_message: function(severity, msg, data) {
             var time_now = new Date().toLocaleString();
-            $('#content_log_messages').prepend('<div class='+cls+'><span class="timestamp">['+time_now+']</span> '+msg+'</div>');
+
+            var $log_message = $(templates.logger.message({
+                severity: severity,
+                timestamp: time_now,
+                message: msg,
+                data: data
+            }));
+            $log_message.find('.expander').bind('click', function(){
+                $(this).next().toggle();
+            });
+
+            $('#content_log_messages').prepend($log_message);
             $('#content_log_messages').children(':gt(99)').remove();
         }
     };

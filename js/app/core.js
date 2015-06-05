@@ -1,4 +1,4 @@
-define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, logger, signalbus) {
+define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function($, _, logger, signalbus, pretty) {
     var core = {
         status: 'disconnected',
         server_url: '',
@@ -127,9 +127,12 @@ define(["jquery", "lodash", "logger", "signalbus", "cookie"], function($, _, log
             };
             if(request_data != null) {
                 ajax_object.data = request_data;
+                logger.debug('Sending ES request: ' + request_path, pretty.parse(request_data, 'json'));
+            }
+            else {
+                logger.debug('Sending ES request: ' + request_path);
             }
             // Send request
-            logger.debug('Sending ES request: ' + request_path);
             var that = this;
             $.ajax(ajax_object).done(function(data){
                 logger.debug('Request successful, processing response...');

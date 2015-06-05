@@ -54,6 +54,17 @@ define(["lodash"], function(_) {
                     <div id="browser_popup_content"><%= content %></div>\
                 </div>'
             )
+        },
+        logger: {
+            message: _.template(
+                '<div class="<%= severity %>">\
+                    <span class="timestamp">[<%= timestamp %>]</span> <%= message %>\
+                    <% if(typeof(data) !== "undefined") { %>\
+                        <div class="expander inline">...</div>\
+                        <div class="request_data"><%= data %></div>\
+                    <% } %>\
+                </div>'
+            )
         }
     };
     return templates;
