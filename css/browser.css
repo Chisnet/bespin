@@ -38,9 +38,10 @@
     margin-bottom: 10px;
 }
 #content_browser_left #browser_filter {
-    width: 270px;
+    width: 260px;
     margin-top: 5px;
     padding: 2px;
+    border: 1px solid #aaa;
 }
 #content_browser_left #browser_filter_options {
     list-style: none;
@@ -50,10 +51,10 @@
     display: none;
 }
 #content_browser_left #browser_filter_options li {
-    background-color: #eee;
-    border: 1px solid #ccc;
+    background-color: #cde;
+    border: 1px solid #9bd;
     padding: 2px;
-    width: 270px;
+    width: 260px;
     border-top: none;
     cursor: pointer;
 }
@@ -61,9 +62,9 @@
     background-color: #9bd;
 }
 #content_browser_left #add_filter_button {
-    height: 21px;
-    width: 21px;
-    font-weight: bold;
+    height: 18px;
+    width: 18px;
+    padding: 0;
 }
 #content_browser_left #browser_filters {
     border: 1px solid #aaa;
@@ -72,10 +73,15 @@
 #content_browser_left .filter input {
     margin-top: 5px;
     width: 255px;
+    border: 1px solid #aaa;
+    padding: 2px;
 }
 #content_browser_left .filter button {
     background-color: #d66;
     border-color: #d22;
+    height: 18px;
+    width: 18px;
+    padding: 0;
 }
 
 /* Right Section */
