@@ -42,7 +42,7 @@ Upon opening Bespin, first thing you'll need to do is enter the address, if it d
 
 On subsequent loads Bespin will automatically attempt to connect to the last successful address.
 
-Once connected there are 3 sections available to you:
+Once connected there are 4 sections available to you:
 
 ### Overview
 
@@ -50,7 +50,7 @@ Gives a visual overview of the structure of your indices in one of two layouts, 
 
 Alias view is useful if you use aliases in your index structure, it groups indices together by their alias, and has on hover highlighting of indices to show any other aliases they're grouped under.
 
-Vertical view gives a more tabular layout, breaking down the index information to the shard lebel for a more detailed status overview.
+Vertical view gives a more tabular layout, breaking down the index information to the shard level for a more detailed status overview.
 
 ### Browser
 
@@ -60,6 +60,12 @@ You can initially filter the data by alias or index, and then further narrow dow
 
 Results returned are laid out in a table view, with long or complex fields truncated, with an option to expand each one to show the full data as best as possible.
 
+### Raw
+
+An simple interface for sending raw requests to ElasticSearch.
+
+This is useful if you need to manually write and test a complex query, or debug a query.
+
 ### Log
 
 A simple text log, focusing on Bespin's interactions with your Elastic Search cluster, allowing for basic debugging in case of a failure, as well as some insight into how the data that powers Bespin is gathered.
@@ -67,4 +73,4 @@ A simple text log, focusing on Bespin's interactions with your Elastic Search cl
 Contributing
 ------------
 
-Bespin is still in the fairly early stages of development, so until the structure of the project is cemented contributions will probably not be accepted, but reporting of any issues is encouraged. 
+Bespin is still in fairly active development, and has yet to go through a proper clean-up phase, so until the structure of the project is cemented contributions will probably not be accepted, but reporting of any issues is encouraged. 
