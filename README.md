@@ -18,6 +18,18 @@ sudo elasticsearch/bin/plugin -install chisnet/bespin
 
 You can then access Bespin via http://localhost:9200/_plugin/bespin
 
+If this fails then the plugin didn't install properly, this can be solved by changing to the ElasticSearch plugins directory where bespin is installed, usually:
+
+```
+/usr/share/elasticsearch/plugins/bespin/_site
+```
+
+and running this command with sudo access:
+
+```
+sudo cp Chisnet-bespin-*/* . -R && sudo rm -rf Chisnet-bespin-*
+```
+
 ### Running locally
 
 As Bespin is written in HTML, you can also just checkout the repository locally and run it directly by opening index.html
