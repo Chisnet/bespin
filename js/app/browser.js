@@ -130,15 +130,16 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             $type_dropdown.empty();
             $type_dropdown.append('<option value="">--</option>');
             if(index_type == 'alias') {
+                var type_list = [];
                 _.each(core.aliases[index_name], function(alias_index_name){
                     var mappings = core.indices[alias_index_name].mappings;
-                    var type_list = [];
                     _.each(mappings, function(mapping_data, mapping_name){
                         type_list.push(mapping_name);
                     });
-                    _.each(type_list, function(mapping_name){
-                        $type_dropdown.append('<option value="'+mapping_name+'">'+mapping_name+'</option>');
-                    });
+                });
+                type_list = _.uniq(type_list);
+                _.each(type_list, function(mapping_name){
+                    $type_dropdown.append('<option value="'+mapping_name+'">'+mapping_name+'</option>');
                 });
             }
             else {
