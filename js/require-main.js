@@ -5,7 +5,8 @@ require.config({
         lodash: '../lib/lodash',
         cookie: '../lib/jquery.cookie',
         signalbus: '../lib/signalbus',
-        pretty: '../lib/pretty'
+        pretty: '../lib/pretty',
+        typeahead: '../lib/typeahead'
     },
     shim: {
         'cookie': ["jquery"]

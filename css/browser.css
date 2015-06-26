@@ -43,14 +43,13 @@
     padding: 2px;
     border: 1px solid #aaa;
 }
-#content_browser_left #browser_filter_options {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-    display: none;
+#content_browser_left .tt-hint {
+    margin-top: 5px;
+    color: #aaa;
+    width: 260px;
 }
-#content_browser_left #browser_filter_options li {
+
+#content_browser_left .tt-suggestion {
     background-color: #cde;
     border: 1px solid #9bd;
     padding: 2px;
@@ -58,13 +57,17 @@
     border-top: none;
     cursor: pointer;
 }
-#content_browser_left #browser_filter_options li:hover {
+#content_browser_left .tt-suggestion:hover,
+#content_browser_left .tt-suggestion.tt-cursor {
     background-color: #9bd;
 }
+
 #content_browser_left #add_filter_button {
     height: 18px;
     width: 18px;
     padding: 0;
+    position: relative;
+    top: 8px;
 }
 #content_browser_left #browser_filters {
     border: 1px solid #aaa;

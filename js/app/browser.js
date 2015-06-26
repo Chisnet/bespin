@@ -1,4 +1,4 @@
-define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"], function($, _, logger, signalbus, core, templates, pretty) {
+define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty", "typeahead"], function($, _, logger, signalbus, core, templates, pretty) {
     var browser = {
         current_filters: [],
         filter_field_data: {},
@@ -8,6 +8,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
         current_page: 1,
         sort_field: '',
         sort_order: 'asc',
+        filter_fields: [],
 
         init: function() {
             // Bind events
@@ -79,25 +80,11 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 that.current_page = page;
                 that.browse(page);
             });
-            $('#browser_filter').bind('keyup', function() {
-                var filter_options = $('#browser_filter_options li');
-                $(filter_options).hide();
-                var matching_count = 0;
-                for(var i = 0; i < filter_options.length; i++){
-                    var $filter_option = $($(filter_options).eq(i));
-                    var filter_val = $filter_option.text().toLowerCase();
-                    var input_val = $(this).val().toLowerCase()
-                    if(filter_val.indexOf(input_val) === 0 && filter_val != input_val){
-                        $filter_option.show();
-                        matching_count += 1;
-                    }
-                }
-                if(matching_count == 0 || $(this).val().length == 0) {
-                    $('#browser_filter_options').hide();
-                }
-                else {
-                    $('#browser_filter_options').show();
-                }
+
+            $('#browser_filter').typeahead({
+                minLength: 1
+            },{
+                source: browser.field_matcher()
             });
         },
         build_index_browser: function() {
@@ -305,7 +292,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 $results_table.append($result_row);
             });
             // Update browser interface
-            this.populate_filters_dropdown(headers);
+            this.filter_fields = headers;
             // Bind expander events
             $('#browser_results .expander').bind('click', function(){
                 var result_index = $(this).data('index');
@@ -386,24 +373,6 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 'types': ['long'],
                 'indexing': []
             };
-        },
-        populate_filters_dropdown: function(headers){
-            var that = this;
-            // Populate filter options
-            var $filter_options = $('#browser_filter_options');
-            $filter_options.empty();
-            _.each(headers, function(field_name){
-                if(!_.includes(['_index', '_type'], field_name)) {
-                    var field_types = that.filter_field_data[field_name]['types'];
-                    if(that.is_filterable(field_types)) {
-                        $filter_options.append('<li>'+field_name+'</li>');
-                    }
-                }
-            });
-            $('#browser_filter_options li').on('click', function(){
-                $('#browser_filter').val($(this).text());
-                $('#browser_filter_options').hide();
-            });
         },
         is_filterable: function(field_types) {
             // Must have at leats one type
@@ -518,7 +487,18 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
         switch_to_index: function(index_name) {
             $('#browser_indices').val('index_'+index_name);
             this.browse();
-        }
+        },
+        field_matcher: function() {
+            return function(q, cb) {
+                var matches = [];
+                $.each(browser.filter_fields, function(i, str) {
+                    if(str.indexOf(q) === 0 && str != q) {
+                        matches.push(str);
+                    }
+                });
+                cb(matches);
+            }
+        },
     };
     browser.init();
     return browser;
