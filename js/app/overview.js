@@ -54,7 +54,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "browser
                             $output.find('div.index').bind('click', function(){
                                 that.jump_to_browser($(this).data('name'));
                             });
-                            $('#content_overview').append($output)
+                            $('#content_overview').append($output);
                         }
                     });
                     _.each(core.alias_keys, function(alias){
@@ -83,25 +83,22 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "browser
                 case 'vertical':
                     var $output = $(templates.table_view.table());
 
-                    // Pre-form data
-                    var output_data = {};
-                    var that = this;
-
                     // Build header
                     var $tHeader = $('<tr></tr>');
                     $tHeader.append($('<th></th>')); // Empty corner cell
                     _.each(core.nodes, function(node){
-                        var output = templates.table_view.node({
+                        var output;
+                        output = templates.table_view.node({
                             name: node.name,
                             hostname: node.hostname || node.host
                         });
                         $tHeader.append(output);
                         if(core.unassigned_nodes) {
-                            var output = templates.table_view.node({
+                            output = templates.table_view.node({
                                 name: 'Unassigned',
                                 hostname: 'n/a'
                             });
-                            $tHeader.append(output)
+                            $tHeader.append(output);
                         }
                     });
                     $output.find('thead').append($tHeader);
@@ -168,7 +165,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "browser
                 name: index_name,
                 docs: index_data ? index_data.docs.num_docs : 'unknown',
                 size: index_data ? index_data.index.primary_size : 'unknown',
-            }
+            };
         },
         jump_to_browser: function(index_name) {
             core.load_tab('browser');

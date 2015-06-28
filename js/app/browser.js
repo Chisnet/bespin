@@ -28,7 +28,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
 
             $('#browser_indices').bind('change', function() {
                 var browser_index = $(this).val();
-                if(browser_index != '') {
+                if(browser_index !== '') {
                     var browser_index_type = browser_index.substr(0,5);
                     var browser_index_name = browser_index.substr(6);
                     that.build_type_browser(browser_index_type, browser_index_name);
@@ -36,12 +36,12 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 }
             });
             $('#browser_types').bind('change', function() {
-                if($('#browser_indices').val() != '') {
+                if($('#browser_indices').val() !== '') {
                     that.browse();
                 }
             });
             $('#browser_size').bind('change', function() {
-                if($('#browser_indices').val() != '') {
+                if($('#browser_indices').val() !== '') {
                     that.browse();
                 }
             });
@@ -95,17 +95,18 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             if(core.alias_keys.indexOf('NONE') > -1) {
                 alias_count -= 1;
             }
+            var $opt_group;
             if(alias_count > 0) {
-                var $opt_group = $('<optgroup label="Aliases"></optgroup>');
+                $opt_group = $('<optgroup label="Aliases"></optgroup>');
                 _.each(core.alias_keys, function(alias_name){
-                    if(alias_name != 'NONE') {
+                    if(alias_name !== 'NONE') {
                         $opt_group.append('<option value="alias_'+alias_name+'">'+alias_name+'</option>');
                     }
                 });
                 $index_dropdown.append($opt_group);
             }
             if(core.index_keys.length) {
-                var $opt_group = $('<optgroup label="Indices"></optgroup>');
+                $opt_group = $('<optgroup label="Indices"></optgroup>');
                 _.each(core.index_keys, function(index_name){
                     $opt_group.append('<option value="index_'+index_name+'">'+index_name+'</option>');
                 });
@@ -153,8 +154,8 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             var result_size = $('#browser_size').val();
 
             // Build search path
-            var search_path = index_name;
-            if(type_name != '') {
+            search_path = index_name;
+            if(type_name !== '') {
                 search_path += '/' + type_name;
             }
             search_path += '/_search';
@@ -169,7 +170,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             if(request_body) {
                 var request_data = JSON.stringify(request_body);
                 core.es_post(search_path, request_data, function(data){
-                    if(typeof(data) != 'undefined') {
+                    if(typeof(data) !== 'undefined') {
                         that.build_browser_results(data, result_size);
                     }
                     else {
@@ -183,7 +184,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                     from: from
                 };
                 core.es_get(search_path, params, function(data){
-                    if(typeof(data) != 'undefined') {
+                    if(typeof(data) !== 'undefined') {
                         that.build_browser_results(data, result_size);
                     }
                     else {
@@ -241,7 +242,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             // Header
             var $header_row = $('<tr></tr>');
             _.each(headers, function(field_name){
-                var field_types = []
+                var field_types = [];
                 if(that.filter_field_data[field_name]) {
                     field_types = that.filter_field_data[field_name]['types'];
                 }
@@ -259,7 +260,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             $results_table.append($header_row);
             // Results
             _.each(results, function(result){
-                $result_row = $('<tr></tr>');
+                var $result_row = $('<tr></tr>');
                 _.each(headers, function(field){
                     if(_.has(result, field)) {
                         var value = result[field];
@@ -276,7 +277,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                             }
                         }
                         if(typeof value == 'object') {
-                            if(value != null) {
+                            if(value !== null) {
                                 value = '<div class="expander" data-index="'+result._index+'" data-type="'+result._type+'" data-id="'+result._id+'" data-field="'+field+'">...</div>';
                             }
                             else {
@@ -310,7 +311,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             // Bind sortable events
             $('#browser_results th.sortable').bind('click', function(){
                 var sort_field = $(this).data('field');
-                if(that.sort_field != sort_field) {
+                if(that.sort_field !== sort_field) {
                     that.sort_order = 'asc';
                 }
                 else {
@@ -376,7 +377,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
         },
         is_filterable: function(field_types) {
             // Must have at leats one type
-            if(field_types.length == 0) {
+            if(field_types.length === 0) {
                 return false;
             }
             // Can't be binary or token_count
@@ -411,7 +412,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             if(this.current_filters.length > 0) {
                 _.each(this.current_filters, function(filter_name){
                     var filter_value = $('#filter_' + filter_name + '_input').val();
-                    if(filter_value != '') {
+                    if(filter_value !== '') {
                         var filter = that.build_filter(filter_name, filter_value);
                         query_body['bool']['must'] = _.union(query_body['bool']['must'], filter);
                         valid_filters += 1;
@@ -447,7 +448,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 filter_field_indexing = this.filter_field_data[filter_name]['indexing'];
             }
             // If the only value type is string we can use a wildcard filter, otherwise term will have to do
-            if(_.difference(filter_field_types, ['string']).length == 0) {
+            if(_.difference(filter_field_types, ['string']).length === 0) {
                 var values = _.compact(filter_value.trim().split(' '));
                 _.each(values, function(value) {
                     var term = {};
@@ -492,12 +493,12 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             return function(q, cb) {
                 var matches = [];
                 $.each(browser.filter_fields, function(i, str) {
-                    if(str.indexOf(q) === 0 && str != q) {
+                    if(str.indexOf(q) === 0 && str !== q) {
                         matches.push(str);
                     }
                 });
                 cb(matches);
-            }
+            };
         },
     };
     browser.init();

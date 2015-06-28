@@ -69,7 +69,6 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function
 
             // If we successfully get a good status request all other data and organise/render it
             if(this.status == 'connected') {
-                var that = this;
                 this.es_get('_nodes', function(data){
                     if(typeof(data) != 'undefined') {
                         // Node response just goes straight into our local object
@@ -92,13 +91,13 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function
         },
         es_get: function(path, params, callback) {
             // Handle missing args
-            if(callback == null) {
+            if(callback === null) {
                 callback = params;
                 params = null;
             }
             // Build path
             var request_path = path + '/';
-            if(params != null && typeof(params) == 'object') {
+            if(params !== null && typeof(params) == 'object') {
                 params = $.param(params);
                 request_path += '?' + params;
             }
@@ -107,7 +106,7 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function
         },
         es_post: function(path, data, callback) {
             // Handle missing args
-            if(data == null) {
+            if(data === null) {
                 callback = data;
                 data = null;
             }
@@ -125,7 +124,7 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function
                 url: request_path,
                 type: request_type
             };
-            if(request_data != null) {
+            if(request_data !== null) {
                 ajax_object.data = request_data;
                 logger.debug('Sending ES request: ' + request_path, pretty.parse(request_data, 'json'));
             }
@@ -217,7 +216,7 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function
                 this.unassigned_nodes = true;
             }
         }
-    }
+    };
     core.init();
     return core;
 });
