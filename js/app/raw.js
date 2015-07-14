@@ -22,6 +22,8 @@ define(['jquery', 'core', 'pretty'], function($, core, pretty) {
             });
         },
         send_request: function() {
+            var that = this;
+
             var request_method = $('#raw_method').val().toUpperCase();
             var request_path = $('#raw_path').val();
             var request_data = $('#raw_data').val();
