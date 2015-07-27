@@ -220,8 +220,8 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "templates", "cooki
         display_popup: function(content) {
             if($('#overlay_popup').length) {
                 $('#overlay_popup_content').html(content);
-                $('#overlay_popup_content').scrollTop(0);
                 $('#overlay_popup').show();
+                $('#overlay_popup_content').scrollTop(0);
             }
             else {
                 var template_data = {
