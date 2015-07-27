@@ -240,6 +240,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             this.store_field_types(headers);
             // Header
             var $header_row = $('<tr></tr>');
+            $header_row.append('<th></th>');
             _.each(headers, function(field_name){
                 var field_types = []
                 if(that.filter_field_data[field_name]) {
@@ -260,6 +261,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             // Results
             _.each(results, function(result){
                 $result_row = $('<tr></tr>');
+                $result_row.append('<td><div class="expander" data-index="'+result._index+'" data-type="'+result._type+'" data-id="'+result._id+'">...</div></td>');
                 _.each(headers, function(field){
                     if(_.has(result, field)) {
                         var value = result[field];
@@ -303,7 +305,13 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 var document_path = result_index + '/' + result_type + '/' + result_id;
 
                 core.es_get(document_path, function(data){
-                    var popup_content = pretty.parse(data._source[result_field], 'json');
+                    var popup_content;
+                    if(result_field) {
+                        popup_content = pretty.parse(data._source[result_field], 'json');
+                    }
+                    else {
+                        popup_content = pretty.parse(data, 'json');
+                    }
                     that.display_popup(popup_content);
                 });
             });
