@@ -126,6 +126,9 @@ button:disabled {
     max-height: 600px;
     overflow: auto;
 }
+#overlay_popup_content.short {
+    max-height: 400px;
+}
 #overlay_popup_content pre {
     background-color: #666;
     margin: 0;

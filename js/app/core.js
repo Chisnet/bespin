@@ -220,6 +220,7 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "templates", "cooki
         display_popup: function(content) {
             if($('#overlay_popup').length) {
                 $('#overlay_popup_content').html(content);
+                this.update_popup_height();
                 $('#overlay_popup').show();
                 $('#overlay_popup_content').scrollTop(0);
             }
@@ -229,12 +230,21 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "templates", "cooki
                 };
                 var output = templates.core.popup(template_data);
                 $('body').append(output);
+                this.update_popup_height();
                 $('#overlay_popup').show();
                 $('#overlay_popup_close').bind('click', function(){
                     $('#overlay_popup').hide();
                 });
             }
         },
+        update_popup_height: function() {
+            if($('window').innerHeight() < 800) {
+                $('#overlay_popup_content').addClass('short');
+            }
+            else {
+                $('#overlay_popup_content').removeClass('short');
+            }
+        }
     }
     core.init();
     return core;
