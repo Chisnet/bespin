@@ -1,4 +1,4 @@
-define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function($, _, logger, signalbus, pretty) {
+define(["jquery", "lodash", "logger", "signalbus", "pretty", "templates", "cookie"], function($, _, logger, signalbus, pretty, templates) {
     var core = {
         status: 'disconnected',
         server_url: '',
@@ -216,7 +216,25 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "cookie"], function
             if((this.shards.successful + this.shards.failed) < this.shards.total) {
                 this.unassigned_nodes = true;
             }
-        }
+        },
+        display_popup: function(content) {
+            if($('#overlay_popup').length) {
+                $('#overlay_popup_content').html(content);
+                $('#overlay_popup_content').scrollTop(0);
+                $('#overlay_popup').show();
+            }
+            else {
+                var template_data = {
+                    content: content
+                };
+                var output = templates.core.popup(template_data);
+                $('body').append(output);
+                $('#overlay_popup').show();
+                $('#overlay_popup_close').bind('click', function(){
+                    $('#overlay_popup').hide();
+                });
+            }
+        },
     }
     core.init();
     return core;

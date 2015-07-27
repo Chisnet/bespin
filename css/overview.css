@@ -92,6 +92,7 @@
 }
 #content_overview.vertical_view .index {
     text-align: left;
+    position: relative;
 }
 #content_overview.vertical_view .index .name {
     font-size: 18px;
@@ -103,6 +104,19 @@
 #content_overview.vertical_view .index .docs,
 #content_overview.vertical_view .index .size {
     font-weight: normal;
+}
+#content_overview.vertical_view .index .mapping {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-weight: normal;
+    font-size: 11px;
+    border-radius: 2px;
+    padding: 2px 5px;
+    background-color: #28d;
+    color: #fff;
+    border: 1px solid #17c;
+    cursor: pointer;
 }
 #content_overview.vertical_view .shards div {
     float: left;

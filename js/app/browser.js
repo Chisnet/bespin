@@ -312,7 +312,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                     else {
                         popup_content = pretty.parse(data, 'json');
                     }
-                    that.display_popup(popup_content);
+                    core.display_popup(popup_content);
                 });
             });
             // Bind sortable events
@@ -474,23 +474,6 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 filters.push({term:term});
             }
             return filters;
-        },
-        display_popup: function(content) {
-            if($('#browser_popup').length) {
-                $('#browser_popup_content').html(content);
-                $('#browser_popup').show();
-            }
-            else {
-                var template_data = {
-                    content: content
-                };
-                var output = templates.browser.popup(template_data);
-                $('body').append(output);
-                $('#browser_popup').show();
-                $('#browser_popup_close').bind('click', function(){
-                    $('#browser_popup').hide();
-                });
-            }
         },
         switch_to_index: function(index_name) {
             $('#browser_indices').val('index_'+index_name);

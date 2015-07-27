@@ -1,5 +1,13 @@
 define(["lodash"], function(_) {
     var templates = {
+        core: {
+            popup: _.template(
+                '<div id="overlay_popup">\
+                    <div id="overlay_popup_close">Close</div>\
+                    <div id="overlay_popup_content"><%= content %></div>\
+                </div>'
+            )
+        },
         alias_view: {
             alias: _.template(
                 '<div class="alias">\
@@ -37,6 +45,7 @@ define(["lodash"], function(_) {
                     <span class="name" data-name="<%= name %>"><%= name %></span><br/>\
                     <span class="info docs">Documents: <%= docs %></span><br/>\
                     <span class="info size">Size: <%= size %></span>\
+                    <div class="mapping" data-name="<%= name %>">Mappings</div>\
                 </th>'
             )
         },
@@ -46,12 +55,6 @@ define(["lodash"], function(_) {
                     <label for="filter_<%= field_name %>_input"><%= field_name %></label>\
                     <input type="text" id="filter_<%= field_name %>_input" data-filter="<%= field_name %>"/>\
                     <button type="button" class="remove_filter" data-filter="<%= field_name %>">-</button>\
-                </div>'
-            ),
-            popup: _.template(
-                '<div id="browser_popup">\
-                    <div id="browser_popup_close">Close</div>\
-                    <div id="browser_popup_content"><%= content %></div>\
                 </div>'
             )
         },

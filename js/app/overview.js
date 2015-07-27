@@ -1,6 +1,6 @@
-define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "browser"], function($, _, logger, signalbus, core, templates, browser) {
+define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty", "browser"], function($, _, logger, signalbus, core, templates, pretty, browser) {
     var overview = {
-        view_type: 'alias',
+        view_type: 'vertical',
         init: function() {
             // Get the view type first so when we connect we can render immediately in the correct view
             var cookieViewType = $.cookie('view_type');
@@ -119,6 +119,12 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "browser
                         }));
                         $index_output.find('span.name').bind('click', function(){
                             that.jump_to_browser($(this).data('name'));
+                        });
+                        $index_output.find('div.mapping').bind('click', function(){
+                            var index_name = $(this).data('name');
+                            var data = JSON.stringify(core.indices[index_name].mappings);
+                            popup_content = pretty.parse(data, 'json');
+                            core.display_popup(popup_content);
                         });
                         $indexRow.append($index_output);
 
