@@ -238,7 +238,7 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "templates", "cooki
             }
         },
         update_popup_height: function() {
-            if($('window').innerHeight() < 800) {
+            if($(window).innerHeight() < 800) {
                 $('#overlay_popup_content').addClass('short');
             }
             else {

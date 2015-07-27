@@ -11,6 +11,12 @@ define(['jquery', 'core', 'pretty'], function($, core, pretty) {
         update_height: function() {
             var content_height = $('body').outerHeight() - $('#header').outerHeight() - $('#nav').outerHeight() - 20;
             $('#content_raw').css('height', content_height);
+            if($(window).innerHeight() < 800) {
+                $('#raw_data').addClass('short');
+            }
+            else {
+                $('#raw_data').removeClass('short');
+            }
         },
         bind_events: function() {
             var that = this;

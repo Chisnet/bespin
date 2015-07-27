@@ -21,10 +21,13 @@
 #raw_data {
     margin: 10px 0;
     resize: none;
+    height: 500px;
     width: 394px;
-    height: 400px;
     border: 1px solid #aaa;
     padding: 2px;
+}
+#raw_data.short {
+    height: 400px;
 }
 #raw_request {
     float: right;
