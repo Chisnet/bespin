@@ -10,25 +10,13 @@ Installation
 
 ### Installing as a plugin
 
-You can install Bespin as a plugin for ElasticSearch so it is always available on any machine with access to the cluster.
+You can install Bespin as a plugin for ElasticSearch so it is always available on any machine with access to the cluster; just run the following command from within the ElasticSearch folder.
 
 ```
-sudo elasticsearch/bin/plugin -install chisnet/bespin
+sudo ./bin/plugin -url https://github.com/Chisnet/bespin/releases/download/v1.2.4/bespin-1.2.4.zip -install bespin
 ```
 
 You can then access Bespin via http://localhost:9200/_plugin/bespin
-
-If this fails then the plugin didn't install properly, this can be solved by changing to the ElasticSearch plugins directory where bespin is installed, usually:
-
-```
-/usr/share/elasticsearch/plugins/bespin/_site
-```
-
-and running this command with sudo access:
-
-```
-sudo cp Chisnet-bespin-*/* . -R && sudo rm -rf Chisnet-bespin-*
-```
 
 ### Running locally
 
@@ -48,9 +36,9 @@ Once connected there are 4 sections available to you:
 
 Gives a visual overview of the structure of your indices in one of two layouts, toggleable from the dropdown on the right hand side.
 
-Alias view is useful if you use aliases in your index structure, it groups indices together by their alias, and has on hover highlighting of indices to show any other aliases they're grouped under.
+Vertical view is the default view and gives a clean tabular layout, including a break down of the index information to the shard level for a detailed status overview. Vertical view always provides a handy button to view the mappings for each individual index.
 
-Vertical view gives a more tabular layout, breaking down the index information to the shard level for a more detailed status overview.
+Alias view is useful if you use aliases in your index structure, it groups indices together by their alias, and has on hover highlighting of indices to show any other aliases they're grouped under.
 
 ### Browser
 
@@ -58,7 +46,7 @@ A straight-foward index browser tool that allows you to inspect the data in your
 
 You can initially filter the data by alias or index, and then further narrow down to the data your interested in by filtering to a certain type, or field value.
 
-Results returned are laid out in a table view, with long or complex fields truncated, with an option to expand each one to show the full data as best as possible.
+Results returned are laid out in a table view, with long or complex fields truncated, with an option to expand each one to show the full data as best as possible. There is also a handy "expander" button on the far left of the table for each document to see it's full index data as a JSON representation.
 
 ### Raw
 
@@ -68,7 +56,7 @@ This is useful if you need to manually write and test a complex query, or debug 
 
 ### Log
 
-A simple text log, focusing on Bespin's interactions with your Elastic Search cluster, allowing for basic debugging in case of a failure, as well as some insight into how the data that powers Bespin is gathered.
+A simple text log, focusing on Bespin's interactions with your Elastic Search cluster, allowing for basic debugging in case of a failure, as well as some insight into how the data that powers Bespin is gathered. Complex ElasticSearch requests have an expander button to view the POST data for the query.
 
 Contributing
 ------------
