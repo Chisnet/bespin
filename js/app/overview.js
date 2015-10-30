@@ -89,6 +89,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
 
                     // Build header
                     var $tHeader = $('<tr></tr>');
+                    var nodes_to_show = false;
                     $tHeader.append($('<th></th>')); // Empty corner cell
                     _.each(core.nodes, function(node){
                         var output = templates.table_view.node({
@@ -96,15 +97,19 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                             hostname: node.hostname || node.host
                         });
                         $tHeader.append(output);
-                        if(core.unassigned_nodes) {
-                            var output = templates.table_view.node({
-                                name: 'Unassigned',
-                                hostname: 'n/a'
-                            });
-                            $tHeader.append(output)
-                        }
+                        nodes_to_show = true;
                     });
-                    $output.find('thead').append($tHeader);
+                    if(core.unassigned_nodes) {
+                        var output = templates.table_view.node({
+                            name: 'Unassigned',
+                            hostname: 'n/a'
+                        });
+                        $tHeader.append(output);
+                        nodes_to_show = true;
+                    }
+                    if(nodes_to_show) {
+                        $output.find('thead').append($tHeader);
+                    }
 
                     // Build content
                     _.each(core.index_keys, function(index_name){

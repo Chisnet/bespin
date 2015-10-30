@@ -1,3 +1,11 @@
+#content_overview.alias_view {
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+}
+#content_overview.active.alias_view {
+    display: flex;
+}
+
 /* Boxes */
 #content_overview.alias_view .index,
 #content_overview.alias_view .alias {
@@ -14,8 +22,8 @@
 }
 #content_overview.alias_view .alias {
     background: #ada;
-    min-width: 300px;
     padding-bottom: 10px;
+    min-width: 300px;
 }
 
 /* Box Titles and Info */
