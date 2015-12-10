@@ -22,6 +22,10 @@ define(["jquery", "lodash", "logger", "signalbus", "pretty", "templates", "cooki
                 $('#connectionURL').val(cookieURL);
                 this.connect(cookieURL);
             }
+            else {
+                var rootURL = 'http://' + document.location.host + '/';
+                $('#connectionURL').val(rootURL);
+            }
             this.bind_events();
         },
         bind_events: function() {
