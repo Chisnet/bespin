@@ -13,7 +13,7 @@ Installation
 You can install Bespin as a plugin for ElasticSearch so it is always available on any machine with access to the cluster; just run the following command from within the ElasticSearch folder.
 
 ```
-sudo ./bin/plugin -url https://github.com/Chisnet/bespin/releases/download/v1.2.5/bespin-1.2.5.zip -install bespin
+sudo ./bin/plugin -url https://github.com/Chisnet/bespin/releases/download/current-release/bespin.zip -install bespin
 ```
 
 You can then access Bespin via http://localhost:9200/_plugin/bespin
