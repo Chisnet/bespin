@@ -73,12 +73,12 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
             $('#browser_page_prev').bind('click', function() {
                 var page = that.current_page > 1 ? that.current_page-1 : 1;
                 that.current_page = page;
-                that.browse(page);
+                that.browse(page, true);
             });
             $('#browser_page_next').bind('click', function() {
                 var page = that.current_page + 1;
                 that.current_page = page;
-                that.browse(page);
+                that.browse(page, true);
             });
 
             $('#browser_filter').typeahead({
