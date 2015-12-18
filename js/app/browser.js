@@ -427,7 +427,7 @@ define(["jquery", "lodash", "logger", "signalbus", "core", "templates", "pretty"
                 });
             }
             // Add the sort if required
-            if(use_sort) {
+            if(use_sort && that.sort_field !== '') {
                 var sort_field = that.sort_field;
                 var sort_order = that.sort_order;
                 if(sort_field == '_id'){sort_field = '_uid';}
